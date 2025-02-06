@@ -1,6 +1,8 @@
 # thesis
 Thesis project at the MSDV programme.
 
+ABSTRACT:
+
 The Archetypes of Female Characters in Literary Epics, and What They Mean for the Expectations from Women in a Culture Over Time, and in the Modern Context
 
 The subject matter of this paper will cover a number of literary epics and the female characters represented in them, and view them through the lens of character archetypes as understood in the modern context. Given that epics contain social history¹ of a culture, and are considered pieces of art, the concept of art imitates life and life imitates art is explored in order to determine whether the socio-cultural expectations of women stem from "role-models" modeled by the (mostly male) writers of these epics. The idea of how much this affects their internal idea of self is also explored in the latter half through the concept of the male gaze in epics.
@@ -36,7 +38,7 @@ I have chosen this topic due to my interest in the Ramayana and Mahabharata, and
 
 
 
-Literature Review: 
+LITERATURE REVIEW: 
 
 Momsen, Janet Henshall, and Janet G. Townsend. Geography of gender in the third world. Albany, N.Y: State University of New York Press, 1987. 
 Dixon, Laurinda S. Perilous chastity: Women and illness in pre-enlightenment art and medicine. Ithaca, NY: Cornell University Press, 2019. 
