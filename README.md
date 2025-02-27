@@ -48,7 +48,7 @@ and their various contradictions within the Indian context, and for the creation
 
 [ThesisSketches01_Harshita.pdf](https://github.com/user-attachments/files/19013934/ThesisSketches01_Harshita.pdf)
 
-![image](https://github.com/user-attachments/assets/2280affc-2904-4c95-a98d-87b36b599eb5)
+
 
 
 
