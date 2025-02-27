@@ -44,21 +44,9 @@ their characters are fertile ground for the enunciation of multiple feminisms
 and their various contradictions within the Indian context, and for the creation of common ground between feminists and Indian women at large. 
 
 
-![0](https://github.com/user-attachments/assets/63027668-7aa6-4be8-b419-37af407923dd)
-
-![1](https://github.com/user-attachments/assets/fb961c07-97e2-4c30-9e4f-ad3cd115d7ed)
-
-![2](https://github.com/user-attachments/assets/5fb0717a-93dd-4bbf-bced-20f84731a811)
-
-![3](https://github.com/user-attachments/assets/9f194185-2833-42bc-8218-9ec893464c21)
-
-![4](https://github.com/user-attachments/assets/733fd2d2-e872-4ba9-a94f-b35272fac27b)
-
-![5](https://github.com/user-attachments/assets/a1f215d9-5e72-49de-93fe-5cc549699d1f)
-
-![6](https://github.com/user-attachments/assets/4ff74f2c-4ebf-4301-a9e6-ec321b0715cb)
 
 
+[ThesisSketches01_Harshita.pdf](https://github.com/user-attachments/files/19013934/ThesisSketches01_Harshita.pdf)
 
 
 
