@@ -53,9 +53,14 @@ MOCKUP:
 
 https://www.figma.com/proto/zquAjemdk4GgVoW69NVKOo/thesis-1a?node-id=5-756&p=f&t=0NPYAfui6LfSmR6R-1&scaling=scale-down&content-scaling=fixed&page-id=1%3A2
 
-
-
-
+![MacBook Pro 16_ - 1](https://github.com/user-attachments/assets/00dc2f03-fe3b-4526-9f0b-4fc96b965d4b)
+![MacBook Pro 16_ - 2](https://github.com/user-attachments/assets/e0e3b1ac-e7c5-4cdf-bbc5-1d55d5e44148)
+![MacBook Pro 16_ - 3](https://github.com/user-attachments/assets/8f5ee9a5-e8ee-4558-a2f7-5770ec461a09)
+![MacBook Pro 16_ - 7](https://github.com/user-attachments/assets/db857411-65f9-4400-9bfe-95dd14e1af08)
+![MacBook Pro 16_ - 5](https://github.com/user-attachments/assets/a78fa896-b745-4093-896d-0a82a80b4cb4)
+![MacBook Pro 16_ - 8](https://github.com/user-attachments/assets/dc7a179b-004b-435d-a3d0-90ce898cca69)
+~ needs another version of the archetype distrubution, based on the characteristics assessed here ~
+![MacBook Pro 16_ - 6](https://github.com/user-attachments/assets/c37d94cd-60da-4c4e-8ba1-00f17e7071cf)
 
 
 
