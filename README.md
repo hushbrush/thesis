@@ -49,7 +49,9 @@ and their various contradictions within the Indian context, and for the creation
 
 [ThesisSketches01_Harshita.pdf](https://github.com/user-attachments/files/19013934/ThesisSketches01_Harshita.pdf)
 
-MOCKUP: https://www.figma.com/proto/zquAjemdk4GgVoW69NVKOo/thesis-1a?node-id=5-756&p=f&t=0NPYAfui6LfSmR6R-1&scaling=scale-down&content-scaling=fixed&page-id=1%3A2
+MOCKUP: 
+
+https://www.figma.com/proto/zquAjemdk4GgVoW69NVKOo/thesis-1a?node-id=5-756&p=f&t=0NPYAfui6LfSmR6R-1&scaling=scale-down&content-scaling=fixed&page-id=1%3A2
 
 
 
