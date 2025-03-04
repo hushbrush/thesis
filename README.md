@@ -17,34 +17,32 @@ The project aims to shed light on the invisible structures that affect the way w
 
 INTRODUCTION:
 
+
+
 "The Historian and the Epic" defines epic
-
 as "essentially a literary crystallisation of the
-
 heroic ideal. By its very nature, therefore, it
-
 is not to be taken as factual evidence, 
-
 but as the representation of an
-
 ideal." (Thapar 199) (^3)
 
- 
 But an ideal is contextualised by when, and where. What similarities will be uncovered when this context is removed? If we looked at the female characters in epics from all over the world, from the lens of today, where do these women fall in terms of the ‘ideal?’ 
-
 This thesis aims to do exactly that, exploring the text of certain epics with the idea of archetypes at the centre of it, and trying to analyse the features of a character that make it a particular archetype. 
 
- The word ‘archetype’ is Greek for ‘first imprint.’ More colloquially, it is used to cluster certain features and decisions made by characters in order to generalise the journey of characters. According to Carl Jung, there are 7 female archetypes- the Mother, the Maiden, the Queen, the Huntress, the Sage, the Mystic, and the Lover. Sita from Ramayana immediately seems to fall under the Mystic, while Kunti from the same falls under the Mother. But is this all that the characters were about? 
+The word ‘archetype’ is Greek for ‘first imprint.’ More colloquially, it is used to cluster certain features and decisions made by characters in order to generalise the journey of characters. According to Carl Jung, there are 7 female archetypes- the Mother, the Maiden, the Queen, the Huntress, the Sage, the Mystic, and the Lover. Sita from Ramayana immediately seems to fall under the Mystic, while Kunti from the same falls under the Mother. But is this all that the characters were about? 
 
- Piecing together the cultural extrapolation and power the epics have even today(^3), with the male gaze that is inevitably a part of the epics that are written by men will be addressed. By analysing the construction of female characters in the world of a man, the thesis will explore both the archetypes that emerge as well as how these portrayals shape and reinforce cultural expectations of women. Additionally, it will consider whether these literary ideals influence how women perceive and internalize their own roles within society, and then try to construct a ‘lineage’ of female characters through time and culture. 
+Piecing together the cultural extrapolation and power the epics have even today(^3), with the male gaze that is inevitably a part of the epics that are written by men will be addressed. By analysing the construction of female characters in the world of a man, the thesis will explore both the archetypes that emerge as well as how these portrayals shape and reinforce cultural expectations of women. Additionally, it will consider whether these literary ideals influence how women perceive and internalize their own roles within society, and then try to construct a ‘lineage’ of female characters through time and culture. 
 
-While the data visualisation project will aim to deal with characters from several epics, this written thesis will focus on the relationship between a culture and the ‘ideal female characteristics’ through the characters of 3 epics: Mahabharata, Iliad, and The Tale of Genji. It will then focus on understanding the relationship of the female characters with their culture in a qualitative way, while the visualisation project will use the findings of this qualitative function to apply it on a broader scale and uncover ‘proximity’ of different characters from different cultures. Furthermore, it will also look into addressing the best practice to frame such a problem from the perspective of code. This will include a brief outline of the reasoning behind the chosen computational method for determining character proximity, reflecting on both its advantages and the limitations of alternative approaches. Since the nature of the problem makes it susceptible to multicollinearity through the origin of the archetype, methods to avoid this will be theorized.
+
+While the data visualisation project will aim to deal with characters from several epics, this written thesis will focus on the relationship between a culture and the ‘ideal female characteristics’ through the characters of 3 epics: Mahabharata, Iliad, and The Tale of Genji. It will then focus on understanding the relationship of the female characters with their culture in a qualitative way, while the visualisation project will use the findings of this qualitative function to apply it on a broader scale and uncover ‘proximity’ of different characters from different cultures. Furthermore, it will also look into addressing the best practice to frame such a problem from the perspective of code. This will include a brief outline of the reasoning behind the chosen computational method for determining character proximity, reflecting on both its advantages and the limitations of alternative approaches. Since the nature of the problem makes it susceptible to multicollinearity through the origin of the archetype, methods to avoid this will be theorized. 
+
 
 3: Romila Thapar: https://indianculturalforum.in/2018/01/17/the-historian-and-the-epic-romila-thapar/
 4: RashmiLuthra • 137
 Further, I argue that rather than being a dead-end, the epics and
 their characters are fertile ground for the enunciation of multiple feminisms
 and their various contradictions within the Indian context, and for the creation of common ground between feminists and Indian women at large. 
+
 
 
 
