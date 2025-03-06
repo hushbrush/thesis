@@ -53,14 +53,21 @@ MOCKUP:
 
 https://www.figma.com/proto/zquAjemdk4GgVoW69NVKOo/thesis-1a?node-id=5-756&p=f&t=0NPYAfui6LfSmR6R-1&scaling=scale-down&content-scaling=fixed&page-id=1%3A2
 
-![MacBook Pro 16_ - 1](https://github.com/user-attachments/assets/00dc2f03-fe3b-4526-9f0b-4fc96b965d4b)
-![MacBook Pro 16_ - 2](https://github.com/user-attachments/assets/e0e3b1ac-e7c5-4cdf-bbc5-1d55d5e44148)
-![MacBook Pro 16_ - 3](https://github.com/user-attachments/assets/8f5ee9a5-e8ee-4558-a2f7-5770ec461a09)
-![MacBook Pro 16_ - 7](https://github.com/user-attachments/assets/db857411-65f9-4400-9bfe-95dd14e1af08)
-![MacBook Pro 16_ - 5](https://github.com/user-attachments/assets/a78fa896-b745-4093-896d-0a82a80b4cb4)
-![MacBook Pro 16_ - 8](https://github.com/user-attachments/assets/dc7a179b-004b-435d-a3d0-90ce898cca69)
+
+![1](https://github.com/user-attachments/assets/e3d6e39e-78d7-4f9f-8039-2c31fd258285)
+![2](https://github.com/user-attachments/assets/aff90f51-4e9d-4349-8089-6f9b74e252b5)
+![3](https://github.com/user-attachments/assets/d5babd20-8044-41f5-8476-62711a729e70)
+![4](https://github.com/user-attachments/assets/e07664e2-fd43-4a9d-98dd-1180bf2f5571)
+![5](https://github.com/user-attachments/assets/bfeb59b2-6380-4a00-89b6-bac3cd25c813)
+![6](https://github.com/user-attachments/assets/7d2c1310-ee5d-4898-b6cc-ddbf0fcfdd9a)
+![7](https://github.com/user-attachments/assets/16e61675-935c-4ec8-851a-568d20b451d9)
 ~ needs another version of the archetype distrubution, based on the characteristics assessed here ~
-![MacBook Pro 16_ - 6](https://github.com/user-attachments/assets/c37d94cd-60da-4c4e-8ba1-00f17e7071cf)
+![8](https://github.com/user-attachments/assets/4a7f88c4-558e-4100-b7db-39d0300d5b54)
+
+
+
+
+
 
 
 
