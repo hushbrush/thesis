@@ -48,6 +48,8 @@ and their various contradictions within the Indian context, and for the creation
 
 
 [ThesisSketches01_Harshita.pdf](https://github.com/user-attachments/files/19013934/ThesisSketches01_Harshita.pdf)
+SKETCHES:
+![0](https://github.com/user-attachments/assets/d1183cab-a22e-46a2-be34-59956cc5936b)
 
 MOCKUP: 
 
