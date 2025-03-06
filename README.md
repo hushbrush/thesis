@@ -46,10 +46,11 @@ and their various contradictions within the Indian context, and for the creation
 
 
 
-
-[ThesisSketches01_Harshita.pdf](https://github.com/user-attachments/files/19013934/ThesisSketches01_Harshita.pdf)
 SKETCHES:
-![0](https://github.com/user-attachments/assets/d1183cab-a22e-46a2-be34-59956cc5936b)
+[ThesisSketches01_Harshita.pdf](https://github.com/user-attachments/files/19013934/ThesisSketches01_Harshita.pdf)
+
+<img width="1280" alt="Screenshot 2025-03-06 at 12 16 59 PM" src="https://github.com/user-attachments/assets/5f26b02e-9d65-431a-add6-e3e6b7bc47cc" />
+
 
 MOCKUP: 
 
