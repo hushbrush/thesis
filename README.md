@@ -1,4 +1,4 @@
-# thesis
+# Thesis
 Thesis project at the MSDV program: 
 Exploring the Character Archetypes in Female Characters in Cultural Epics Devoid of Geographic and Time-Specific Context, as a Function of Modelling the 'Ideal' Woman--both in Society and in the minds of women for themselves.
 
