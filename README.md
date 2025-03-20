@@ -46,6 +46,8 @@ their characters are fertile ground for the enunciation of multiple feminisms
 and their various contradictions within the Indian context, and for the creation of common ground between feminists and Indian women at large. 
 
 TREATMENT:
+
+
 Conceptual Methodology:
 To begin with, it is essential to define the scope of what qualifies as ‘epics’ within the context of this project. Traditionally, epics are defined as a heroic poem of great length. However, for the purpose of this paper, the term is expanded to include any piece of literature that captures the cultural zeitgeist of the time, regardless of the literary form. This allows for a more comprehensive set of characters to look into, spanning multiple cultures and historical periods. 
 While characters from epics have often been perceived from different lenses throughout history, there are different standards for measuring the character of women and men in epics.(8) Women are considered in the context of, and through the value they create, in the eyes of men. Epics, like any other medium of expression, when written by men, tend to characterise women in the context of men, and their perception of women. This aligns with the concept of The Male Gaze, originally introduced in film theory, which can also be applied to the portrayal of women in epics. By analyzing how female characters are constructed within these narratives, we can uncover underlying gendered characteristics.
