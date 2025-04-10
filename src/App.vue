@@ -1,30 +1,65 @@
-<script setup>
-// import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="app">
+    <header class="header">
+      <h1 class="title">My Project Title</h1>
+      <button class="data-button" @click="showModal = true">Data</button>
+    </header>
+
+    <Modal v-if="showModal" @close="showModal = false" />
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script>
+import modal from './components/modal.vue'
+
+export default {
+  components: {
+    modal
+  },
+  data() {
+    return {
+      showModal: false
+    }
+  }
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+</script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #000000;
+  color: white;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.app {
+  height: 100vh;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.title {
+  font-size: 2.5em;
+  margin: 0;
+}
+
+.data-button {
+  padding: 10px 20px;
+  font-size: 1em;
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.data-button:hover {
+  background-color: #cccccc;
 }
 </style>
