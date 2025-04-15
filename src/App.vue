@@ -1,20 +1,20 @@
 <template>
   <div class="app">
-    <header class="header">
-      <h1 class="title">My Project Title</h1>
-      <button class="data-button" @click="showModal = true">Data</button>
-    </header>
-
-    <Modal v-if="showModal" @close="showModal = false" />
+    <landing-page @open-modal="showModal = true" />
+    <modal v-if="showModal" @close="showModal = false" />
   </div>
 </template>
 
+
 <script>
 import modal from './components/modal.vue'
+import landingPage from './components/landingPage.vue'
+
 
 export default {
   components: {
-    modal
+    modal,
+    landingPage
   },
   data() {
     return {
@@ -42,11 +42,6 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-}
-
-.title {
-  font-size: 2.5em;
-  margin: 0;
 }
 
 .data-button {
