@@ -1,5 +1,6 @@
 <template>
   <div class="app">
+    <h1>HI HARSHITA</h1>
     <landing-page @open-modal="showModal = true" />
     <modal v-if="showModal" @close="showModal = false" />
   </div>
