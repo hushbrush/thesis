@@ -1,0 +1,11 @@
+[
+    {
+      "text": "Which word best describes your energy?",
+      "options": ["Mystic", "Motherly", "Fierce", "Romantic", "Strategist"]
+    },
+    {
+      "text": "What role do you naturally take in a group?",
+      "options": ["Leader", "Caretaker", "Rebel", "Inspiration", "Guide"]
+    }
+  ]
+  
