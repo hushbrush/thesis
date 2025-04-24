@@ -20,19 +20,16 @@
       @continue="showCluster"
     />
     <scroll-stage
-  v-else-if="currentStep === 'chart'"
-  @show-card="showCharacterCard"
-/>
-
-
-
+      v-else-if="currentStep === 'chart'"
+      @show-card="showCharacterCard"
+    />
 
     <!-- D3 Force Cluster -->
     <cluster-force
-  v-else-if="currentStep === 'cluster'"
-  :nodes="nodes"
-  @next="showCharacterList"
-/>
+      v-else-if="currentStep === 'cluster'"
+      :nodes="nodes"
+      @next="showCharacterList"
+    />
 
 
     <!-- Character list -->
