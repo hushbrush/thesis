@@ -14,10 +14,6 @@
 <button @click="$emit('show-card')" class="character-card-button">
   View Character Details
 </button>
-
-
-
-    <div class="tooltip" ref="tooltip"></div>
   </div>
 </template>
 
@@ -57,7 +53,7 @@ export default {
       .attr('width', this.width)
       .attr('height', this.height)
 
-    this.tooltip = this.$refs.tooltip
+      this.tooltip = document.getElementById('tooltip')
 
     this.drawInitialNodes()
     this.setupScrollama()
@@ -108,7 +104,7 @@ export default {
   },
 
   bindTooltip() {
-    const tooltip =  this.$refs.tooltip
+    const tooltip =  this.tooltip
     this.node
       .on('mouseover', function (event, d) {
         d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2)
@@ -156,12 +152,19 @@ export default {
     scroller
       .setup({
         step: '.step',
-        offset: 0.7,
+        offset: 0.5,
         debug: false
       })
       .onStepEnter(({ index }) => {
+        console.log('Step entered:', index)
         this.currentStep = index
         this.updateLayout(index)
+      })
+      .onStepExit(({ index, direction }) => {
+        if (direction === 'up' && index > 0) {
+          this.currentStep = index - 1
+          this.updateLayout(index - 1)
+        }
       })
   },
 
@@ -172,6 +175,9 @@ export default {
   },
 
   drawClusterLayout() {
+    this.svg.selectAll('g').remove()
+  this.svg.selectAll('line').remove()
+  this.svg.selectAll('.uncertainty').remove()
     const clusterCenters = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
     this.createLabels()
 
@@ -184,14 +190,18 @@ export default {
   },
 
   drawMapLayout() {
-    
+    //cleanup if coming back
+    this.svg.selectAll('g').remove()
+    this.svg.selectAll('line').remove()
+    this.svg.selectAll('.uncertainty').remove()
+
     this.svg.selectAll('text.cluster-label').remove()
 
     const projection = d3.geoMercator()
       .center([0, 20])
       .scale(this.width / 6.5)
       .translate([this.width / 2, this.height / 2])
-
+    console.log("drawing map")
     this.simulation
       .force('x', d3.forceX(d => {
         const coords = projection([d.lon, d.lat])
@@ -204,6 +214,8 @@ export default {
       .alpha(1)
       .restart()
       .on('tick', this.ticked)
+
+    
   },
   drawTimelineLayout() {
   this.simulation.stop()
@@ -345,19 +357,19 @@ for (const [archetype, group] of sortedGroups) {
   width: 100vw;
   height: 100vh;
   background: transparent; /* or black if needed */
-  z-index: 100;
-  pointer-events: all; /* optional, if interactions are blocking */
+  z-index: 1;
+  pointer-events: none; /* optional, if interactions are blocking */
 }
 
 
 .steps {
-  width: 100vw;
+  width: 100%;
   padding: 10vh 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 0vh; /* ⬅️ big spacing between steps to allow scroll trigger */
-  z-index: -2;
+  z-index: 2;
   font-family: 'Merriweather', serif;
 }
 
@@ -371,19 +383,8 @@ for (const [archetype, group] of sortedGroups) {
   justify-content: center;
 }
 
-.tooltip {
-  max-width: 300px;
-  position: absolute;
-  display: block;
-  background: #000000dd;
-  padding: 6px 10px;
-  font-size: 16px;
-  border-radius: 6px;
-  pointer-events: none;
-  font-family: 'inter', serif;
-  z-index: 9999;
-}
-.character-card-button {
+
+.character-card-button { 
   z-index: 100;
   top: 40px;
   left: 40px;

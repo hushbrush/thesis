@@ -1,6 +1,6 @@
 <template>
     <div class="timeline-container" ref="chart"></div>
-    <div class="tooltip" ref="tooltip"></div>
+    
   </template>
   
   <script>
@@ -18,6 +18,7 @@
     },
     mounted() {
       this.createTimelineChart()
+      this.tooltip = document.getElementById('tooltip') 
     },
     methods: {
       createTimelineChart() {
@@ -26,7 +27,7 @@
           .attr('width', this.width)
           .attr('height', this.height)
   
-        const tooltip = this.$refs.tooltip
+          const tooltip = this.tooltip
   
         // Scale for time
         const timeExtent = d3.extent(this.nodes, d => +d.original_date || 0)
@@ -79,17 +80,6 @@
     position: relative;
   }
   
-  .tooltip {
-    position: absolute;
-    display: none;
-    background: #ffffffdd;
-    color: black;
-    padding: 6px 10px;
-    font-size: 14px;
-    border-radius: 6px;
-    pointer-events: none;
-    font-family: 'Merriweather', serif;
-    z-index: 10;
-  }
+ 
   </style>
   

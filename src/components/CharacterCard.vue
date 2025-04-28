@@ -1,7 +1,7 @@
 <template>
   <div class="character-card">
     <div class="selector">
-      <select v-model="selectedName" class="character-select">
+      <select v-model="selectedName" class="character-select"> //how can I make this dropdown the colour of the archetype
         <option disabled value="">-- Select a Character --</option>
         <option v-for="char in characters" :key="char.character" :value="char.character">
           {{ char.character }}
@@ -11,6 +11,7 @@
 
     <div v-if="selectedCharacter" class="card-content">
       <div class="left-column">
+        <div class ="basics">
         <p class="quote">"The duty must be done, even if there is a little suffering involved"</p>
 
         <p class="bio">
@@ -20,22 +21,31 @@
         <p class="book-info">
           <em>{{ selectedCharacter.title }}</em><br>
           Translated by {{ selectedCharacter.translator }}
+          <br>Read more 
+          <a :href="`https://en.wikipedia.org/wiki/${selectedCharacter.character}`" target="_blank">here</a>
+          or read the book
+          <a :href="selectedCharacter.download_link" target="_blank">here</a>
         </p>
 
-        <p class="links">
-          <a href="#">here</a> or read the book <a href={selectedCharacter.download_link}>here</a>
-        </p>
+      
 
         <div class="bar-title">What she said vs what others said about her</div>
         <div class="bar-wrapper">
-          <div class="bar-self"></div>
-          <div class="bar-others"></div>
+          <div
+            class="bar-self"
+            :style="{ width: `${Math.min(selectedCharacter.saidvsabout * 100, 100)}%` }"
+          ></div>
+          <div
+            class="bar-others"
+            :style="{ width: `${Math.max(100 - selectedCharacter.saidvsabout * 100, 0)}%` }"
+          ></div>
         </div>
-
+      </div>
+        <div class="role-section">
         <div class="role-title">{{ selectedCharacter.character }}'s Role:</div>
         <div class="role-bar">
-          <!-- Fake role bars -->
-          <div v-for="n in 30" :key="n" class="bar" :style="{ height: `${Math.random() * 40 + 20}px` }"></div>
+        </div>
+          <!-- <div v-for="n in 30" :key="n" class="bar" :style="{ height: `${Math.random() * 40 + 20}px` }"></div> -->
         </div>
 
         <p class="hover-hint">Hover on the bars to see the text in context of {{ selectedCharacter.character }}</p>
@@ -44,10 +54,17 @@
       <div class="right-column">
         <div class="card-head">
           <div class="silhouette">
-            <div class="half-fill"></div>
+            <img :src="silhouetteSelector(selectedCharacter.archetype)" alt="Character silhouette" />
+           
+
           </div>
-          <div class="archetype-label">{{ archetypeName(selectedCharacter.archetype) }}</div>
-          <p class="timeline-dot">● ● ● <strong>●</strong> ● ●</p>
+          <div
+            class="archetype-label"
+            :style="{ color: archetypeColor(selectedCharacter.archetype) }"
+          >
+            {{ archetypeName(selectedCharacter.archetype) }}
+          </div>
+          
           <p class="timeline-date">~ {{ selectedCharacter.original_date }}</p>
         </div>
       </div>
@@ -64,9 +81,14 @@ export default {
       selectedName: '',
       characters: data,
       clusterMeta: [
-        { name: "Devoted" }, { name: "Wild Ones" }, { name: "Queens" },
-        { name: "Lovers" }, { name: "Hearthkeepers" }, { name: "Outcasts" },
-        { name: "Furies" }, { name: "Protectors" }
+        { name: "Devoted", color: "#DBF39D" },
+        { name: "Wild Ones", color: "#caf244" },
+        { name: "Queens", color: "#b17fe3" },
+        { name: "Lovers", color: "#ff94d6" },
+        { name: "Hearthkeepers", color: "#F9C74F" },
+        { name: "Outcasts", color: "#9D4EDD" },
+        { name: "Furies", color: "#f56c0a" },
+        { name: "Protectors", color: "#7face3" }
       ]
     }
   },
@@ -78,27 +100,52 @@ export default {
   methods: {
     archetypeName(index) {
       return this.clusterMeta[index]?.name || 'Unknown'
-    }
+    },
+    barChart() {
+      // Placeholder for bar chart logic
+    },
+    archetypeColor(index) {
+       return this.clusterMeta[index]?.color ;
+}
+,
+    silhouetteSelector(index) {
+  try {
+    console.log('index', index);
+    return new URL(`../assets/silhouettes/${index}.svg`, import.meta.url).href;
+  } catch (err) {
+    console.error('Silhouette fallback triggered:', err);
+    return new URL('../assets/silhouettes/default.svg', import.meta.url).href;
   }
 }
+
+//the tooltip wont work anymore, need to fic that.
+ 
+}}
+
 </script>
 
 <style scoped>
 .character-card {
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: #fff;
   color: #000;
-  font-family: 'Merriweather', serif;
+  font-family: 'jaro', serif;
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
+ 
 }
 
 .selector {
-  margin-bottom: 2rem;
-  align-items: left;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* ⬅️ align to left */
+  width: fit-content;
+  
 }
 
 .card-content {
@@ -106,32 +153,39 @@ export default {
   justify-content: space-between;
   width: 100%;
   gap: 4rem;
+ 
 }
 
 .left-column {
+  font-family: Merriweather;
   flex: 2;
   text-align: left;
 }
 
 .right-column {
   flex: 1;
-  border: 0.5px solid #c30000;
-  padding: 1.5rem;
+  border: 0.5px solid #000000;
+  margin: 1.5rem;
   border-radius: 20px;
   text-align: center;
+ 
 }
 
-
+.basics{
+  padding: 20px;
+}
 .character-select {
-  color: #C40000;
+  width: 60%;
+ 
   font-family: Jaro;
-  font-size: 96px;
+  font-size: 78px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
-  border: 0.5px solid #c30000;
+  border: 0.5px solid #000000;
   padding: 0.4rem 1rem;
   border-radius: 12px;
+  letter-spacing: 2px;
   background: transparent;
   appearance: none;
   -webkit-appearance: none;
@@ -142,96 +196,145 @@ export default {
 .name {
   
  
-  border: 0.5px solid #c30000;
+  border: 0.5px solid #000000;
   display: inline-block;
   padding: 0.4rem 1rem;
   border-radius: 12px;
 }
 
 .quote {
-  font-size: 1.2rem;
-  margin: 1rem 0;
-  font-weight: bold;
+  padding-top: 40px;
+  color: #000;
+font-family: Merriweather;
+font-size: 30px;
+font-style: normal;
+font-weight: 700;
+line-height: normal;
 }
 
 .bio {
-  margin: 1rem 0;
+  color: #000;
+font-family: Merriweather;
+font-size: 20px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
 }
-
+.href {
+  color: #ff0000;}
 .book-info {
-  font-style: italic;
-  margin: 0.5rem 0;
+  color: #000;
+font-family: Merriweather;
+font-size: 16px;
+font-style: italic;
+font-weight: 400;
+line-height: normal;
 }
 
 .links a {
-  color: #c30000;
+  color: #000000;
   text-decoration: underline;
 }
 
 .bar-title {
   margin-top: 2rem;
-  font-weight: bold;
-  color: #444;
+  color: #8A8A8A;
+font-family: Merriweather;
+font-size: 20px;
+font-style: normal;
+font-weight: 700;
+line-height: normal;
 }
-
 .bar-wrapper {
+  padding: 0, 10px;
   display: flex;
   height: 20px;
-  background: #f4d6d6;
-  width: 300px;
-  margin: 0.5rem 0 2rem;
+  width: 100%;
+  /* max-width: 300px; */
+  background: #ffffff;
+  overflow: hidden;
 }
 
 .bar-self {
-  width: 60%;
-  background: #c30000;
+
+  background-color: #000000;
+  transition: width 0.5s ease;
 }
 
 .bar-others {
-  width: 40%;
+  background-color: #f4d6d6;
+  transition: width 0.5s ease;
 }
-
+.role-section{
+  padding-top: 20px;
+}
 .role-title {
   display: flex;
   gap: 4px;
-  margin-bottom: 1.5rem;
+ margin-bottom: 1.5rem;
+  color: #8A8A8A;
+font-family: Merriweather;
+font-size: 26px;
+font-style: normal;
+font-weight: 700;
+line-height: normal;
 }
 
 .bar {
   width: 6px;
-  background: #c30000;
+  background: #000000;
 }
 
 .hover-hint {
   font-size: 0.9rem;
   font-style: italic;
   opacity: 0.8;
-  border: 0.5px solid #c30000;
+  border: 0.5px solid #000000;
   padding: 0.5rem;
   border-radius: 12px;
 }
 
 .card-head .silhouette {
-  width: 120px;
-  height: 160px;
-  border:0.5px solid #c30000;
-  border-radius: 50%;
-  margin: 0 auto;
+  margin: 200px;
+  width: 100%;
+  height: auto;
+  margin:  auto;
   position: relative;
   overflow: hidden;
 }
+.card-head .silhouette img {
+  padding: 30px;
+  margin: 0 auto; 
+  width: 90%;
+  height: 90%;
+  height: auto;
+  object-fit: contain; /* ensures it stays proportional */
+  display: block;
+  color:  #000000;
+}
 
-.half-fill {
-  background: #c30000;
+.bar-fill {
+  background: #000000;
   width: 100%;
   height: 50%;
   position: absolute;
   bottom: 0;
 }
+.masked-silhouette {
+  width: 120px;
+  height: 160px;
+  background: linear-gradient(to top, #000000 50%, transparent 50%);
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
 
 .archetype-label {
   font-weight: bold;
-  color: #c30000;
+  color: #000000;
   margin-top: 1rem;
   font-size: 1.2rem;
 }

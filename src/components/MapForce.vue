@@ -1,6 +1,6 @@
 <template>
     <div class="map-container" ref="chart"></div>
-    <div class="tooltip" ref="tooltip"></div>
+    
   </template>
   
   <script>
@@ -26,13 +26,15 @@
           .append('svg')
           .attr('width', this.width)
           .attr('height', this.height)
+          .style('z-index', 0)
   
         const projection = d3.geoMercator()
           .center([0, 20]) // Center map
           .scale(this.width / 6.5)
           .translate([this.width / 2, this.height / 2])
+          
   
-        const tooltip = this.$refs.tooltip
+        const tooltip = this.tooltip
   
         const simulation = d3.forceSimulation(this.nodes)
           .force('x', d3.forceX(d => {
@@ -83,19 +85,6 @@
     height: 100vh;
     background: #000;
     position: relative;
-  }
-  
-  .tooltip {
-    position: absolute;
-    display: none;
-    background: #ffffffdd;
-    color: black;
-    padding: 6px 10px;
-    font-size: 14px;
-    border-radius: 6px;
-    pointer-events: none;
-    font-family: 'Merriweather', serif;
-    z-index: 10;
   }
   </style>
   

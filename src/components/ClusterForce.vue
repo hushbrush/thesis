@@ -115,7 +115,7 @@ export default {
   position: relative;
 }
 
-.tooltip {
+/* .tooltip {
   position: absolute;
   display: none;
   background: #ffffffdd;
@@ -127,7 +127,7 @@ export default {
   font-family: 'Merriweather', serif;
   z-index: 10;
   box-shadow: 0 2px 6px #00000055;
-}
+} */
 
 .next-button {
   position: absolute;

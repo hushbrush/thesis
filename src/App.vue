@@ -32,17 +32,25 @@
     />
 
 
+
     <!-- Character list -->
 
 <character-list
   v-else-if="currentStep === 'list'"
 />
 
+<archetype-card v-else-if="currentStep === 'archetypeMicro'" />
+
+
 <character-card v-else-if="currentStep === 'card'" />
 
     <!-- Modal -->
     <modal v-if="showModal" @close="showModal = false" />
   </div>
+      <!-- Put this once globally -->
+<!-- KEEP this inside App.vue only -->
+<div id="tooltip" class="global-tooltip"></div>
+
 </template>
 
 <script>
@@ -53,9 +61,9 @@ import ResultReveal from './components/ResultReveal.vue'
 import ClusterForce from './components/ClusterForce.vue'
 import CharacterList from './components/CharacterList.vue'
 import ScrollStage from './components/ScrollStage.vue'
+import ArchetypeCard from './components/ArchetypeMicro.vue'
 import Questions from "@/assets/questions.json"
 import CharacterCard from './components/CharacterCard.vue'
-
 import data from '@/assets/data.json' // ✅ Use this exact path
 
 
@@ -69,7 +77,8 @@ export default {
     ClusterForce,
     CharacterList,
     ScrollStage,
-    CharacterCard
+    CharacterCard,
+    ArchetypeCard
   },
   data() {
     return {
@@ -88,15 +97,18 @@ export default {
       this.currentStep = 'result'
     },
     showCluster() {
-      this.currentStep = 'chart' // 👈 this should match the view from above
+      this.currentStep = 'chart'
     },
     showCharacterList() {
     this.currentStep = 'list'
     },
-   // In App.vue or your state logic
-showCharacterCard() {
-  this.currentStep = 'card'
-}
+    
+    showArchetypeMicro() {
+      this.currentStep = 'archetypeMicro'
+    }, 
+    showCharacterCard() {
+      this.currentStep = 'card'
+    }
 
 
 
@@ -108,21 +120,39 @@ showCharacterCard() {
 html, body, #app {
   margin: 0;
   padding: 0;
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  height: 100%;
+  background-color: #000 !important;
+  max-width: 100vw;
+  overflow-x: hidden;
+
+
   
 }
 
 body {
   
   font-family: Arial, sans-serif;
-  background-color: #000;
   color: white;
 }
+.global-tooltip {
+  max-width: 300px;
+  position: absolute;
+  display: block;
+  background: #000000dd;
+  padding: 6px 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  pointer-events: none;
+  font-family: 'inter', serif;
+  z-index: 9999;
+}
 
-/* .app {
-  width: 100%;
-  height: auto;
-  overflow: hidden;
-} */
+.global-tooltip.visible {
+  display: block;
+  opacity: 1;
+}
+
+
+
 </style>

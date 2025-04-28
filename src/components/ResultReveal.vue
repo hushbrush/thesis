@@ -46,6 +46,10 @@ import quotes from '@/assets/quotes.json'
 
 export default {
   name: 'ResultReveal',
+  
+  emits: ['continue'],
+
+
   data() {
     return {
       quotes,
