@@ -14,44 +14,39 @@
       @finished="showResult"
     />
 
-    <!-- Silhouette + quotes -->
+    <!-- Results -->
     <result-reveal
       v-else-if="currentStep === 'result'"
       @continue="showCluster"
     />
-    <scroll-stage
-      v-else-if="currentStep === 'chart'"
-      @show-card="showCharacterCard"
-    />
 
-    <!-- D3 Force Cluster -->
+    <!-- SCROLL SECTION -->
+    <div v-else-if="currentStep === 'chart'" class="sections-wrapper">
+  <scroll-stage class="section no-snap" />
+  <archetype-card class="section no-snap" />
+</div>
+
+
+    <!-- Cluster -->
     <cluster-force
       v-else-if="currentStep === 'cluster'"
       :nodes="nodes"
       @next="showCharacterList"
     />
 
-
-
     <!-- Character list -->
+    <character-list v-else-if="currentStep === 'list'" />
 
-<character-list
-  v-else-if="currentStep === 'list'"
-/>
-
-<archetype-card v-else-if="currentStep === 'archetypeMicro'" />
-
-
-<character-card v-else-if="currentStep === 'card'" />
+    <!-- Single character page -->
+    <character-card v-else-if="currentStep === 'card'" />
 
     <!-- Modal -->
     <modal v-if="showModal" @close="showModal = false" />
   </div>
-      <!-- Put this once globally -->
-<!-- KEEP this inside App.vue only -->
-<div id="tooltip" class="global-tooltip"></div>
 
+  <div id="tooltip" class="global-tooltip"></div>
 </template>
+
 
 <script>
 import Modal from './components/modal.vue'
@@ -153,6 +148,29 @@ body {
   opacity: 1;
 }
 
+
+.sections-wrapper {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.section {
+  width: 100%;
+}
+
+.snap {
+  scroll-snap-align: start;
+  min-height: 100vh;
+  height: 100vh;
+}
+
+.no-snap {
+  min-height: 100vh;
+  height: auto; /* 👈 allow content to expand normally */
+  scroll-snap-align: none; /* 👈 no forced snap */
+}
 
 
 </style>

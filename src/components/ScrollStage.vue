@@ -11,9 +11,12 @@
 
     </div>
     <!-- At the end of the timeline layout component -->
-<button @click="$emit('show-card')" class="character-card-button">
+    <div v-if="showArchetypeSection">
+      <ArchetypeMicro />
+    </div>
+<!-- <button @click="$emit('show-card')" class="character-card-button">
   View Character Details
-</button>
+</button> -->
   </div>
 </template>
 
@@ -22,12 +25,16 @@ import * as d3 from 'd3'
 import scrollama from 'scrollama'
 import data from '@/assets/data.json'
 import { computeClusterCentersBySize } from '@/utils/clusterSorter.js'
+import ArchetypeMicro from '@/components/ArchetypeMicro.vue'
 
 export default {
-  name: 'ScrollStage',
+  components: {
+    ArchetypeMicro
+  },
   data() {
     return {
       nodes: data,
+      showArchetypeSection: false,
       width: window.innerWidth,
       height: window.innerHeight,
       currentStep: 0,
@@ -296,7 +303,10 @@ for (const [archetype, group] of sortedGroups) {
     .duration(1000)
     .attr("cx", d => d.x)
     .attr("cy", d => d.y)
-}
+},
+handleShowCard() {
+      this.showArchetypeSection = true
+    }
 
 
 }
@@ -396,4 +406,10 @@ for (const [archetype, group] of sortedGroups) {
   cursor: pointer;
   border-radius: 5px;
 }
+.archetype-micro-container {
+  background: black;
+  padding: 2rem;
+  min-height: 100vh; /* <-- force it to be at least 1 screen high */
+}
+
 </style>

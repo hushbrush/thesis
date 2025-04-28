@@ -115,19 +115,6 @@ export default {
   position: relative;
 }
 
-/* .tooltip {
-  position: absolute;
-  display: none;
-  background: #ffffffdd;
-  color: black;
-  padding: 6px 10px;
-  font-size: 14px;
-  border-radius: 6px;
-  pointer-events: none;
-  font-family: 'Merriweather', serif;
-  z-index: 10;
-  box-shadow: 0 2px 6px #00000055;
-} */
 
 .next-button {
   position: absolute;

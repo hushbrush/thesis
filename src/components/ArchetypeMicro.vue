@@ -127,8 +127,16 @@ line-height: normal;
 
   }
   .archetype-micro-container {
+    padding-top: 6rem;
     background: black;
     padding: 2rem;
+
+    /* for scrolling onto this */
+    width: 100%;
+    min-height: 100vh;
+    height: auto;
+    position: relative;
+    z-index: 1;
   }
   .dropdown-container {
     text-transform: uppercase;;
