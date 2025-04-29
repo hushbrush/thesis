@@ -138,7 +138,7 @@ body {
   padding: 6px 10px;
   font-size: 16px;
   border-radius: 6px;
-  pointer-events: none;
+  pointer-events: all;
   font-family: 'inter', serif;
   z-index: 9999;
 }

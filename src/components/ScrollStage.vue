@@ -5,9 +5,9 @@
     <div class="graphic" ref="chart"></div>
 
     <div class="steps">
-      <div class="step" data-step="0">Archetypes</div>
-      <div class="step" data-step="1">Geography</div>
-      <div class="step" data-step="2">Time</div>
+      <div class="step" data-step="0"></div>
+      <div class="step" data-step="1"></div>
+      <div class="step" data-step="2"></div>
 
     </div>
     <!-- At the end of the timeline layout component -->
@@ -60,7 +60,7 @@ export default {
       .attr('width', this.width)
       .attr('height', this.height)
 
-      this.tooltip = document.getElementById('tooltip')
+      // this.tooltip = document.getElementById('tooltip')
 
     this.drawInitialNodes()
     this.setupScrollama()
@@ -111,31 +111,31 @@ export default {
   },
 
   bindTooltip() {
-    const tooltip =  this.tooltip
-    this.node
-      .on('mouseover', function (event, d) {
-        d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2)
-        tooltip.style.display = 'block'
-        tooltip.innerHTML = `
-  <div style="font-weight: bold; font-size: 20px; margin-bottom: 6px;">
-    ${d.character}
-  </div>
-  <div style="font-size: 14px; opacity: 0.8;">Archetype: ${d.archetype}</div>
-  <div style="margin-bottom: 6px;">${d.bio}</div>
-  <div style="font-style: italic; margin-bottom: 6px;">${d.title}</div>
-  
-`
-
-      })
-      .on('mousemove', function (event) {
-        tooltip.style.left = `${event.pageX + 12}px`
-        tooltip.style.top = `${event.pageY - 30}px`
-      })
-      .on('mouseout', function () {
-        d3.select(this).attr('stroke', null)
-        tooltip.style.display = 'none'
-      })
-  },
+  this.node
+    .on('mouseover', function (event, d) {
+      const tooltip = document.getElementById('tooltip'); // ⬅️ Move it inside the event!
+      d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2)
+      tooltip.style.display = 'block'
+      tooltip.innerHTML = `
+        <div style="font-weight: bold; font-size: 20px; margin-bottom: 6px;">
+          ${d.character}
+        </div>
+        <div style="font-size: 14px; opacity: 0.8;">Archetype: ${d.archetype}</div>
+        <div style="margin-bottom: 6px;">${d.bio}</div>
+        <div style="font-style: italic; margin-bottom: 6px;">${d.title}</div>
+      `;
+    })
+    .on('mousemove', function (event) {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.style.left = `${event.pageX + 12}px`
+      tooltip.style.top = `${event.pageY - 30}px`
+    })
+    .on('mouseout', function () {
+      const tooltip = document.getElementById('tooltip');
+      d3.select(this).attr('stroke', null)
+      tooltip.style.display = 'none'
+    })
+},
 
   createSimulation() {
     const ticked = () => {
@@ -368,7 +368,7 @@ handleShowCard() {
   height: 100vh;
   background: transparent; /* or black if needed */
   z-index: 1;
-  pointer-events: none; /* optional, if interactions are blocking */
+  pointer-events: all; /* optional, if interactions are blocking */
 }
 
 
