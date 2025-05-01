@@ -104,7 +104,7 @@ export default {
   .subtitle {
     padding: 0 0 0 120px;
     color: #FDCD54;
-    width: 300px;
+    width: 450px;
     font-family: 'merriweather', sans-serif;
     font-size: 24px;
     font-style: normal;
@@ -124,9 +124,10 @@ export default {
     pointer-events: none;
   }
   .quiz-button {
+ 
   position: relative;
   left: 120px;
-  top: 180px;
+  top: 140px;
   width: 300px;
   height: 56px;
   flex-shrink: 0;

@@ -21,6 +21,7 @@
       </div>
       <div class="everything">
             <!-- All charts use the same selectedArchetype + clusterMeta -->
+             <h4> add description of archetype here.</h4>
             <h2>Important Characteristics</h2>
             <archetype-grid :selectedArchetype="selectedArchetype" :clusterMeta="clusterMeta" />
             <h2 class="h2">
@@ -59,7 +60,7 @@
       }
     },
     computed: {
-      // expose globalProperties.$clusterMeta as `this.clusterMeta`
+      
       clusterMeta() {
         return this.$clusterMeta
       },
@@ -117,17 +118,17 @@ line-height: normal;
 
   }
   .archetype-micro-container {
-    padding-top: 6rem;
-    background: black;
-    padding: 2rem;
+  width: 100vw;
+  max-width: 100vw;
+  min-height: 100vh;
+  padding: 2rem;
+  background: black;
+  overflow-x: hidden;
+  height: auto;
+  position: relative;
+  z-index: 1;
+}
 
-    /* for scrolling onto this */
-    width: 100%;
-    min-height: 100vh;
-    height: auto;
-    position: relative;
-    z-index: 1;
-  }
   .dropdown-container {
     text-transform: uppercase;;
   width: 500px;

@@ -1,25 +1,22 @@
 <template>
   <div class="scrolly-container">
     <div class="background-layer" :class="'bg-step-' + currentStep"></div>
-
     <div class="graphic" ref="chart"></div>
 
     <div class="steps">
-      <div class="step" data-step="0"></div>
-      <div class="step" data-step="1"></div>
-      <div class="step" data-step="2"></div>
-
+      <div class="step" data-step="0">Archetypes</div>
+      <div class="step" data-step="1">Geographic Map</div>
+      <div class="step" data-step="2">Timeline</div>
+      <div class="step" data-step="3" style="height: 120vh;">Scroll down to continue...</div>
     </div>
-    <!-- At the end of the timeline layout component -->
+<!-- extra space to scroll into next section -->
+<div style="height: 100vh;"></div>
+
     <div v-if="showArchetypeSection">
       <ArchetypeMicro />
     </div>
-<button @click="$emit('show-card')" class="character-card-button">
-  View Character Details
-</button>
   </div>
 </template>
-
 
 <script>
 import * as d3 from 'd3'
@@ -29,9 +26,9 @@ import { computeClusterCentersBySize } from '@/utils/clusterSorter.js'
 import ArchetypeMicro from '@/components/ArchetypeMicro.vue'
 
 export default {
-  components: {
-    ArchetypeMicro
-  },
+  components: { ArchetypeMicro },
+  emits: ['reached-end'],
+
   data() {
     return {
       nodes: data,
@@ -40,19 +37,15 @@ export default {
       height: window.innerHeight,
       currentStep: 0,
       svg: null,
-      tooltip: null,
       simulation: null,
-      node: null,
+      node: null
     }
   },
-  computed: {
-    // expose the global clusterMeta
-    clusterMeta() {
-      return this.$clusterMeta
-    }
-  },
+
   mounted() {
-    if (this.simulation) this.simulation.stop()
+    if (!this.$clusterMeta) {
+      console.warn('⚠️ $clusterMeta is not defined! Check main.js')
+    }
 
     this.svg = d3.select(this.$refs.chart)
       .append('svg')
@@ -60,14 +53,12 @@ export default {
       .attr('height', this.height)
 
     this.drawInitialNodes()
-    this.drawClusterLayout()
     this.setupScrollama()
   },
+
   methods: {
     ticked() {
-      this.node
-        .attr('cx', d => d.x)
-        .attr('cy', d => d.y)
+      this.node.attr('cx', d => d.x).attr('cy', d => d.y)
     },
 
     drawInitialNodes() {
@@ -78,20 +69,20 @@ export default {
     },
 
     createLabels() {
-      const clusterCenters = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
-      this.svg.selectAll('text.cluster-label').remove()
+      const centers = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
+      this.svg.selectAll('.cluster-label').remove()
 
       this.svg.selectAll('text.cluster-label')
-        .data(clusterCenters)
+        .data(centers)
         .enter()
         .append('text')
         .attr('class', 'cluster-label')
         .attr('x', d => d.x)
         .attr('y', d => d.y - 200)
         .attr('text-anchor', 'middle')
-        .attr('fill', (d, i) => this.clusterMeta[i].color || 'white')
+        .attr('fill', (d, i) => this.$clusterMeta[i]?.color || 'white')
         .attr('font-size', 18)
-        .text((d, i) => this.clusterMeta[i].name || `Cluster ${i}`)
+        .text((d, i) => this.$clusterMeta[i]?.name)
     },
 
     createNodes() {
@@ -100,34 +91,30 @@ export default {
         .enter()
         .append('circle')
         .attr('r', 10)
-        .attr('fill', d => this.clusterMeta[d.archetype]?.color || 'white')
+        .attr('fill', d => this.$clusterMeta[d.archetype]?.color || 'white')
         .attr('opacity', 0.9)
     },
 
     bindTooltip() {
       this.node
-        .on('mouseover', function(event, d) {
+        .on('mouseover', function (event, d) {
           const tooltip = document.getElementById('tooltip')
           d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2)
           tooltip.style.display = 'block'
           tooltip.innerHTML = `
-            <div style="font-weight: bold; font-size: 20px; margin-bottom: 6px;">
-              ${d.character}
-            </div>
+            <div style="font-weight: bold; font-size: 20px;">${d.character}</div>
             <div style="font-size: 14px; opacity: 0.8;">Archetype: ${d.archetype}</div>
-            <div style="margin-bottom: 6px;">${d.bio}</div>
-            <div style="font-style: italic; margin-bottom: 6px;">${d.title}</div>
-          `
+            <div>${d.bio}</div>
+            <div style="font-style: italic;">${d.title}</div>`
         })
-        .on('mousemove', function(event) {
+        .on('mousemove', function (event) {
           const tooltip = document.getElementById('tooltip')
           tooltip.style.left = `${event.pageX + 12}px`
           tooltip.style.top = `${event.pageY - 30}px`
         })
-        .on('mouseout', function() {
-          const tooltip = document.getElementById('tooltip')
+        .on('mouseout', function () {
           d3.select(this).attr('stroke', null)
-          tooltip.style.display = 'none'
+          document.getElementById('tooltip').style.display = 'none'
         })
     },
 
@@ -144,102 +131,136 @@ export default {
 
     setupScrollama() {
       const scroller = scrollama()
-      scroller.setup({ step: '.step', offset: 0.5, debug: false })
+      scroller.setup({ step: '.step', offset: 0.6 })
         .onStepEnter(({ index }) => {
           this.currentStep = index
           this.updateLayout(index)
-        })
-        .onStepExit(({ index, direction }) => {
-          if (direction === 'up' && index > 0) {
-            this.currentStep = index - 1
-            this.updateLayout(index - 1)
+          if (index === 3) {
+            setTimeout(() => {
+              this.$emit('reached-end')
+            }, 2000) // Try 500–800ms to start with
           }
+
         })
     },
 
     updateLayout(index) {
+      this.svg.selectAll('.cluster-label').remove()
+      this.svg.selectAll('.timeline-line, .timeline-text, .uncertainty').remove()
+
       if (index === 0) this.drawClusterLayout()
       if (index === 1) this.drawMapLayout()
       if (index === 2) this.drawTimelineLayout()
     },
 
     drawClusterLayout() {
-      this.svg.selectAll('g, line, .uncertainty').remove()
+      const centers = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
       this.createLabels()
-      const clusterCenters = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
+
       this.simulation
-        .force('x', d3.forceX(d => clusterCenters[d.archetype].x).strength(0.7))
-        .force('y', d3.forceY(d => clusterCenters[d.archetype].y).strength(0.7))
-        .alpha(1)
-        .restart()
+  .force('x', d3.forceX(d => centers[d.archetype]?.x).strength(0.6))
+  .force('y', d3.forceY(d => centers[d.archetype]?.y).strength(0.6))
+  .alpha(0.8)
+  .alphaDecay(0.03)
+  .velocityDecay(0.5)
+  .restart()
+
     },
 
     drawMapLayout() {
-      this.svg.selectAll('g, line, .uncertainty, text.cluster-label').remove()
       const projection = d3.geoMercator()
         .center([0, 20])
         .scale(this.width / 6.5)
         .translate([this.width / 2, this.height / 2])
 
-      this.simulation
-        .force('x', d3.forceX(d => {
-          const coords = projection([d.lon, d.lat])
-          return coords ? coords[0] : this.width / 2
-        }).strength(0.8))
-        .force('y', d3.forceY(d => {
-          const coords = projection([d.lon, d.lat])
-          return coords ? coords[1] : this.height / 2
-        }).strength(0.8))
-        .alpha(1)
-        .restart()
+        this.simulation
+  .force('x', d3.forceX(d => projection([d.lon, d.lat])[0]).strength(0.3))
+  .force('y', d3.forceY(d => projection([d.lon, d.lat])[1]).strength(0.3))
+  .alpha(0.8)            // strong initial movement
+  .alphaDecay(0.05)     // SLOW decay — longer visible motion
+  .velocityDecay(0.5)   // floatier movement, not snappy
+  .restart()
+
+
+
+      
     },
 
     drawTimelineLayout() {
       this.simulation.stop()
-      this.svg.selectAll('g, line, text, .uncertainty').remove()
 
       const timeExtent = d3.extent(this.nodes, d => +d.original_date || 0)
       const xScale = d3.scaleLinear()
         .domain([timeExtent[0] - 100, timeExtent[1] + 100])
         .range([100, this.width - 100])
 
-      const xAxis = d3.axisBottom(xScale).tickFormat(d => d)
       this.svg.append('g')
         .attr('transform', `translate(0, ${this.height - 40})`)
-        .call(xAxis)
+        .call(d3.axisBottom(xScale))
         .selectAll('text').style('fill', 'white')
 
-      this.svg.append('line')
-        .attr('x1', xScale(0)).attr('x2', xScale(0))
-        .attr('y1', 0).attr('y2', this.height)
-        .attr('stroke', 'white').attr('stroke-width', 1)
+      this.svg.append("line")
+        .attr("class", "timeline-line")
+        .attr("x1", xScale(0))
+        .attr("x2", xScale(0))
+        .attr("y1", 0)
+        .attr("y2", this.height)
+        .attr("stroke", "white")
+        .attr("stroke-width", 1)
 
-      this.svg.append('text')
-        .attr('x', xScale(0) + 8).attr('y', 20)
-        .text('Birth of Christ')
-        .style('fill', 'white').style('font-size', '12px')
+      this.svg.append("text")
+        .attr("class", "timeline-text")
+        .attr("x", xScale(0) + 8)
+        .attr("y", 20)
+        .text("Birth of Christ")
+        .style("fill", "white")
+        .style("font-size", "12px")
 
-      // stack & draw uncertainty bars then transition circles…
-      // (rest unchanged)
+      const stackMap = new Map()
+      const spacing = 10
+      const baseY = this.height - 80
+      const nodePositions = []
+
+      for (const d of this.nodes) {
+        const x = xScale(d.original_date)
+        const count = stackMap.get(x) || 0
+        const y = baseY - count * spacing
+        stackMap.set(x, count + 1)
+
+        this.svg.append("rect")
+          .attr("class", "uncertainty")
+          .attr("x", xScale(d.original_date - d.date_range_confidence))
+          .attr("y", y - 10)
+          .attr("width", xScale(d.original_date + d.date_range_confidence) - xScale(d.original_date - d.date_range_confidence))
+          .attr("height", 18)
+          .attr("fill", this.$clusterMeta[d.archetype]?.color || '#888')
+          .attr("opacity", 0.1)
+          .attr("rx", 10)
+
+        nodePositions.push({ ...d, x, y })
+      }
+
+      this.node
+        .data(nodePositions, d => d.character)
+        .transition()
+        .duration(1700)
+        .attr('cx', d => d.x)
+        .attr('cy', d => d.y)
     }
   }
 }
 </script>
 
-
-
-
-
-
 <style scoped>
 .scrolly-container {
   position: relative;
   display: flex;
-  flex-direction: column; /* ⬅️ this is key */
+  flex-direction: column;
   width: 100vw;
-  height: auto;
-  background: black;
+  min-height: 100vh;
   overflow-x: hidden;
+  overflow-y: auto;
+  background: black;
 }
 
 .background-layer {
@@ -248,84 +269,63 @@ export default {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 0;
-  transition: background 0.5s;
   background-size: cover;
   background-position: center;
+  z-index: 0;
+  transition: background 0.5s;
 }
 
-.bg-step-0 {
-  background: black; /* Archetypes layout */
-}
+.bg-step-0 { background: black; }
+.bg-step-1 { background-image: url('@/assets/world_map.png'); background-color: black; }
+.bg-step-2 { background: black; }
 
-.bg-step-1 {
-  background-image: url('@/assets/world_map.png'); /* Add your map image here */
-  background-color: black;
+.graphic {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 0;
-  
+  z-index: 3;
+  background: transparent;
 }
-
-
-.bg-step-2 {
-  background: black; /* Timeline feel */
-}
-
-
-.graphic {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: transparent; /* or black if needed */
-  z-index: 1;
-  pointer-events: all; /* optional, if interactions are blocking */
-}
-
 
 .steps {
   width: 100%;
-  padding: 10vh 2rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 0vh; /* ⬅️ big spacing between steps to allow scroll trigger */
   z-index: 2;
-  font-family: 'Merriweather', serif;
 }
 
 .step {
-  font-size: 24px;
-  color: rgba(255, 255, 255, 1);
-  text-align: center;
-  height: 100vh; /* Each step gets a full viewport scroll trigger */
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+.step[data-step="3"] {
+  height: 120vh;
+  background: black;
+  color: white;
+  font-size: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-
-.character-card-button { 
-  z-index: 100;
-  top: 40px;
-  left: 40px;
-  background-color: #ffffff;
-  color: rgb(255, 0, 0);
-  border: none;
-  padding: 10px 20px;
+.step[data-step="0"] {
+  height: 140vh;
+ 
+}
+.global-tooltip {
+  max-width: 300px;
+  position: absolute;
+  display: none;
+  background: #000000dd;
+  padding: 6px 10px;
   font-size: 16px;
-  cursor: pointer;
-  border-radius: 5px;
+  border-radius: 6px;
+  pointer-events: none;
+  color: white;
+  z-index: 9999;
 }
-.archetype-micro-container {
-  background: black;
-  padding: 2rem;
-  min-height: 100vh; /* <-- force it to be at least 1 screen high */
-}
-
 </style>

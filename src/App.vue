@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <SilhouetteSVG :highlightedSection="highlightedSection" />
+   
 
     <!-- Landing screen always shown -->
     <landing-page
@@ -24,22 +24,22 @@
       @restart-quiz="restartQuiz"
     />
 
-    <!-- Smooth scroll section: Archetype + Character Card -->
-    <div v-else-if="currentStep === 'chart'" class="sections-wrapper">
-      <scroll-stage class="no-snap" />
-      <archetype-card
-        class="no-snap"
-        @scroll-to-character="scrollToCharacter"
-      />
-      <character-card class="section snap" ref="characterSection" />
-    </div>
-
-    <cluster-force
-      v-else-if="currentStep === 'cluster'"
-      :nodes="nodes"
-      @next="showCharacterList"
+  <!-- Step 4: Scroll stage with 3 views -->
+    <scroll-stage
+      v-if="currentStep === 'chart'"
+      @reached-end="showArchetypeMicro"
     />
 
+<!-- Step 5: Archetype microcards after scroll ends -->
+<archetype-card
+  v-else-if="currentStep === 'archetypeMicro'"
+  @scroll-to-character="showCharacterCard"
+/>
+
+<!-- Step 6: Character card appears after selection -->
+<character-card v-else-if="currentStep === 'card'" />
+
+    
     <character-list v-else-if="currentStep === 'list'" />
     <modal v-if="showModal" @close="showModal = false" />
 
@@ -61,7 +61,6 @@ import ArchetypeCard from './components/ArchetypeMicro.vue'
 import Questions from "@/assets/questions.json"
 import CharacterCard from './components/CharacterCard.vue'
 import data from '@/assets/data.json' // ✅ Use this exact path
-import SilhouetteSVG from './components/SilhouetteSVG.vue'
 import QuestionCard from './components/QuestionCard.vue'
 
 
@@ -79,7 +78,6 @@ export default {
     ScrollStage,
     CharacterCard,
     ArchetypeCard,
-    SilhouetteSVG,
     QuestionCard
   },
   data() {
@@ -95,43 +93,50 @@ export default {
     }
   },
   methods: {
-    scrollToCharacter() {                       // ← define it here
-      const section = this.$refs.characterSection;
-      if (section && section.$el) {
-        section.$el.scrollIntoView({ behavior: 'smooth' });
-      }
-    },
-    
-    startQuiz() {
-      this.currentStep = 'quiz'
-    },
-    showResult(archetypeIndex) {
-      this.currentStep = 'result'
-     this.archetypeIndex = archetypeIndex  // 🆕 store the final archetype number
-    },
-    showCluster() {
-  this.currentStep = 'cluster'
-},
+  scrollToCharacter() {
+    const section = this.$refs.characterSection;
+    if (section && section.$el) {
+      section.$el.scrollIntoView({ behavior: 'smooth' });
+    }
+  },
 
-    showCharacterList() {
-    this.currentStep = 'list'
-    },
-    
-    showArchetypeMicro() {
-      this.currentStep = 'archetypeMicro'
-    }, 
-    showCharacterCard() {
-      this.currentStep = 'card'
-    },
-    handleQuizAnswer(option) {
-      this.highlightedSection = `q${this.questions.indexOf(option)}`
-    },
-    restartQuiz() {
-  this.currentStep = 'quiz'
+  startQuiz() {
+    this.currentStep = 'quiz';
+  },
+
+  showResult(archetypeIndex) {
+    this.currentStep = 'result';
+    this.archetypeIndex = archetypeIndex;
+  },
+
+  // ✅ Step 4 — Enter scroll stage
+  showCluster() {
+    this.currentStep = 'chart';
+  },
+
+  // ✅ Step 5 — After scroll ends
+  showArchetypeMicro() {
+    this.currentStep = 'archetypeMicro';
+  },
+
+  // ✅ Step 6 — After user selects a character
+  showCharacterCard() {
+    this.currentStep = 'card';
+  },
+
+  showCharacterList() {
+    this.currentStep = 'list';
+  },
+
+  handleQuizAnswer(option) {
+    this.highlightedSection = `q${this.questions.indexOf(option)}`;
+  },
+
+  restartQuiz() {
+    this.currentStep = 'quiz';
+  }
 }
 
-
-  }
 }
 </script>
 
@@ -143,12 +148,16 @@ html, body, #app {
   height: 100%;
   background-color: #000 !important;
   max-width: 100vw;
-  overflow-x: hidden;
-  
+  /* overflow-x: hidden; */
 }
-.app{
-  padding: 0;
+#app {
+  margin: 0 !important; /* Force-reset any injected margin */
+  padding: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box;
 }
+
+
 body {
   padding: 0;
   font-family: Arial, sans-serif;
@@ -163,7 +172,6 @@ body {
   font-size: 16px;
   border-radius: 6px;
   pointer-events: all;
-  font-family: 'inter', serif;
   z-index: 9999;
 }
 
@@ -195,6 +203,16 @@ body {
   height: auto; 
   scroll-snap-align: none;
 }
+* {
+  box-sizing: border-box;
+}
 
+.app {
+  width: 100vw;
+  max-width: 100vw;
+  overflow-x: hidden;
+  padding: 0;
+  margin: 0;
+}
 
 </style>

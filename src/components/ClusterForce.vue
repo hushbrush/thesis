@@ -58,6 +58,7 @@ export default {
         .velocityDecay(0.5)
         .on('tick', ticked)
 
+        
 
       // Create nodes
       const node = svg.selectAll('circle')
