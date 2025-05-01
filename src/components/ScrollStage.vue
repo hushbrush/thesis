@@ -4,9 +4,9 @@
     <div class="graphic" ref="chart"></div>
 
     <div class="steps">
-      <div class="step" data-step="0">Archetypes</div>
-      <div class="step" data-step="1">Geographic Map</div>
-      <div class="step" data-step="2">Timeline</div>
+      <div class="step" data-step="0"></div>
+      <div class="step" data-step="1"></div>
+      <div class="step" data-step="2"></div>
       <div class="step" data-step="3" style="height: 120vh;">Scroll down to continue...</div>
     </div>
 <!-- extra space to scroll into next section -->
@@ -69,7 +69,7 @@ export default {
     },
 
     createLabels() {
-      const centers = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
+      const centers = computeClusterCentersBySize(this.nodes, this.width*6/7, this.height, 220)
       this.svg.selectAll('.cluster-label').remove()
 
       this.svg.selectAll('text.cluster-label')
@@ -81,7 +81,8 @@ export default {
         .attr('y', d => d.y - 200)
         .attr('text-anchor', 'middle')
         .attr('fill', (d, i) => this.$clusterMeta[i]?.color || 'white')
-        .attr('font-size', 18)
+        .attr('font-size', 28)
+        .attr('font-family', 'jaro')
         .text((d, i) => this.$clusterMeta[i]?.name)
     },
 
