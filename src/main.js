@@ -1,5 +1,11 @@
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
 
-createApp(App).mount('#app')
+import { createApp } from 'vue'
+import App from './App.vue'
+import clusterMeta from '@/utils/clusterMeta.js'
+import './style.css'  
+const app = createApp(App)
+
+
+app.config.globalProperties.$clusterMeta = clusterMeta
+
+app.mount('#app')

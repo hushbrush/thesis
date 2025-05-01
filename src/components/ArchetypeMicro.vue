@@ -51,51 +51,41 @@
   import ArchetypeLineage from './ArchetypeLineage.vue'
   
   export default {
-    components: {
-      ArchetypeGrid,
-      ArchetypeScatter,
-      ArchetypeLineage,
-    },
+    components: { ArchetypeGrid, ArchetypeScatter, ArchetypeLineage },
     data() {
       return {
         selectedArchetype: null,
         showDropdown: false,
-        clusterMeta: [
-          { name: "Devoted", color: "#DBF39D" },
-          { name: "Wild Ones", color: "#caf244" },
-          { name: "Queens", color: "#b17fe3" },
-          { name: "Lovers", color: "#ff94d6" },
-          { name: "Hearthkeepers", color: "#F9C74F" },
-          { name: "Outcasts", color: "#9D4EDD" },
-          { name: "Furies", color: "#f56c0a" },
-          { name: "Protectors", color: "#7face3" }
-        ]
       }
     },
     computed: {
+      // expose globalProperties.$clusterMeta as `this.clusterMeta`
+      clusterMeta() {
+        return this.$clusterMeta
+      },
       archetypes() {
-        return this.clusterMeta.map(meta => meta.name);
+        return this.clusterMeta.map(meta => meta.name)
       },
       selectedArchetypeName() {
         if (this.selectedArchetype === null) return "SELECT ARCHETYPE";
-        return this.clusterMeta[this.selectedArchetype]?.name || "SELECT ARCHETYPE";
+        return this.clusterMeta[this.selectedArchetype]?.name;
       },
       selectedColor() {
         if (this.selectedArchetype === null) return "#ffffff";
-        return this.clusterMeta[this.selectedArchetype]?.color || "#ffffff";
+        return this.clusterMeta[this.selectedArchetype]?.color;
       }
     },
     methods: {
-      toggleDropdown() {
-        this.showDropdown = !this.showDropdown;
-      },
-      selectArchetype(index) {
-        this.selectedArchetype = index;
-        this.showDropdown = false;
-      }
+      toggleDropdown() { this.showDropdown = !this.showDropdown },
+      selectArchetype(i) { this.selectedArchetype = i; this.showDropdown = false },
+    },
+    mounted() {
+      setTimeout(() => this.$emit('scroll-to-character'), 1000)
     }
   }
   </script>
+  
+  
   
   <style>
   

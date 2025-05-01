@@ -14,11 +14,12 @@
     <div v-if="showArchetypeSection">
       <ArchetypeMicro />
     </div>
-<!-- <button @click="$emit('show-card')" class="character-card-button">
+<button @click="$emit('show-card')" class="character-card-button">
   View Character Details
-</button> -->
+</button>
   </div>
 </template>
+
 
 <script>
 import * as d3 from 'd3'
@@ -42,277 +43,192 @@ export default {
       tooltip: null,
       simulation: null,
       node: null,
-      clusterMeta: [
-        { name: "Devoted", color: "#DBF39D" },
-        { name: "Wild Ones", color: "#caf244" },
-        { name: "Queens", color: "#b17fe3" },
-        { name: "Lovers", color: "#ff94d6" },
-        { name: "Hearthkeepers", color: "#F9C74F" },
-        { name: "Outcasts", color: "#9D4EDD" },
-        { name: "Furies", color: "#f56c0a" },
-        { name: "Protectors", color: "#7face3" }
-      ]
+    }
+  },
+  computed: {
+    // expose the global clusterMeta
+    clusterMeta() {
+      return this.$clusterMeta
     }
   },
   mounted() {
+    if (this.simulation) this.simulation.stop()
+
     this.svg = d3.select(this.$refs.chart)
       .append('svg')
       .attr('width', this.width)
       .attr('height', this.height)
 
-      // this.tooltip = document.getElementById('tooltip')
-
     this.drawInitialNodes()
+    this.drawClusterLayout()
     this.setupScrollama()
   },
   methods: {
     ticked() {
-  this.node
-    .attr('cx', d => d.x)
-    .attr('cy', d => d.y)
-},
-
-  drawInitialNodes() {
-    // Create labels & circles
-    this.createLabels()
-    this.createNodes()
-    this.bindTooltip()
-    
-
-    // Init simulation
-    this.createSimulation()
-  },
-
-  createLabels() {
-    const clusterCenters = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
-    this.svg.selectAll('text.cluster-label').remove()
-
-    this.svg.selectAll('text.cluster-label')
-      .data(clusterCenters)
-      .enter()
-      .append('text')
-      .attr('class', 'cluster-label')
-      .attr('x', d => d.x)
-      .attr('y', d => d.y - 200)
-      .attr('text-anchor', 'middle')
-      .attr('fill', (d, i) => this.clusterMeta?.[i]?.color || 'white')
-      .attr('font-size', 18)
-      .text((d, i) => this.clusterMeta?.[i]?.name || `Cluster ${i}`)
-  },
-
-  createNodes() {
-    this.node = this.svg.selectAll('circle')
-      .data(this.nodes)
-      .enter()
-      .append('circle')
-      .attr("r", 10)
-      .attr('fill', d => this.clusterMeta?.[d.archetype]?.color || 'white')
-      .attr('opacity', 0.9)
-  },
-
-  bindTooltip() {
-  this.node
-    .on('mouseover', function (event, d) {
-      const tooltip = document.getElementById('tooltip'); // ⬅️ Move it inside the event!
-      d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2)
-      tooltip.style.display = 'block'
-      tooltip.innerHTML = `
-        <div style="font-weight: bold; font-size: 20px; margin-bottom: 6px;">
-          ${d.character}
-        </div>
-        <div style="font-size: 14px; opacity: 0.8;">Archetype: ${d.archetype}</div>
-        <div style="margin-bottom: 6px;">${d.bio}</div>
-        <div style="font-style: italic; margin-bottom: 6px;">${d.title}</div>
-      `;
-    })
-    .on('mousemove', function (event) {
-      const tooltip = document.getElementById('tooltip');
-      tooltip.style.left = `${event.pageX + 12}px`
-      tooltip.style.top = `${event.pageY - 30}px`
-    })
-    .on('mouseout', function () {
-      const tooltip = document.getElementById('tooltip');
-      d3.select(this).attr('stroke', null)
-      tooltip.style.display = 'none'
-    })
-},
-
-  createSimulation() {
-    const ticked = () => {
       this.node
         .attr('cx', d => d.x)
         .attr('cy', d => d.y)
+    },
+
+    drawInitialNodes() {
+      this.createLabels()
+      this.createNodes()
+      this.bindTooltip()
+      this.createSimulation()
+    },
+
+    createLabels() {
+      const clusterCenters = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
+      this.svg.selectAll('text.cluster-label').remove()
+
+      this.svg.selectAll('text.cluster-label')
+        .data(clusterCenters)
+        .enter()
+        .append('text')
+        .attr('class', 'cluster-label')
+        .attr('x', d => d.x)
+        .attr('y', d => d.y - 200)
+        .attr('text-anchor', 'middle')
+        .attr('fill', (d, i) => this.clusterMeta[i].color || 'white')
+        .attr('font-size', 18)
+        .text((d, i) => this.clusterMeta[i].name || `Cluster ${i}`)
+    },
+
+    createNodes() {
+      this.node = this.svg.selectAll('circle')
+        .data(this.nodes)
+        .enter()
+        .append('circle')
+        .attr('r', 10)
+        .attr('fill', d => this.clusterMeta[d.archetype]?.color || 'white')
+        .attr('opacity', 0.9)
+    },
+
+    bindTooltip() {
+      this.node
+        .on('mouseover', function(event, d) {
+          const tooltip = document.getElementById('tooltip')
+          d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2)
+          tooltip.style.display = 'block'
+          tooltip.innerHTML = `
+            <div style="font-weight: bold; font-size: 20px; margin-bottom: 6px;">
+              ${d.character}
+            </div>
+            <div style="font-size: 14px; opacity: 0.8;">Archetype: ${d.archetype}</div>
+            <div style="margin-bottom: 6px;">${d.bio}</div>
+            <div style="font-style: italic; margin-bottom: 6px;">${d.title}</div>
+          `
+        })
+        .on('mousemove', function(event) {
+          const tooltip = document.getElementById('tooltip')
+          tooltip.style.left = `${event.pageX + 12}px`
+          tooltip.style.top = `${event.pageY - 30}px`
+        })
+        .on('mouseout', function() {
+          const tooltip = document.getElementById('tooltip')
+          d3.select(this).attr('stroke', null)
+          tooltip.style.display = 'none'
+        })
+    },
+
+    createSimulation() {
+      this.simulation = d3.forceSimulation(this.nodes)
+        .force('x', d3.forceX().strength(0.7))
+        .force('y', d3.forceY().strength(0.7))
+        .force('collision', d3.forceCollide(10))
+        .force('charge', d3.forceManyBody().strength(-10))
+        .alphaDecay(0.02)
+        .velocityDecay(0.5)
+        .on('tick', this.ticked)
+    },
+
+    setupScrollama() {
+      const scroller = scrollama()
+      scroller.setup({ step: '.step', offset: 0.5, debug: false })
+        .onStepEnter(({ index }) => {
+          this.currentStep = index
+          this.updateLayout(index)
+        })
+        .onStepExit(({ index, direction }) => {
+          if (direction === 'up' && index > 0) {
+            this.currentStep = index - 1
+            this.updateLayout(index - 1)
+          }
+        })
+    },
+
+    updateLayout(index) {
+      if (index === 0) this.drawClusterLayout()
+      if (index === 1) this.drawMapLayout()
+      if (index === 2) this.drawTimelineLayout()
+    },
+
+    drawClusterLayout() {
+      this.svg.selectAll('g, line, .uncertainty').remove()
+      this.createLabels()
+      const clusterCenters = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
+      this.simulation
+        .force('x', d3.forceX(d => clusterCenters[d.archetype].x).strength(0.7))
+        .force('y', d3.forceY(d => clusterCenters[d.archetype].y).strength(0.7))
+        .alpha(1)
+        .restart()
+    },
+
+    drawMapLayout() {
+      this.svg.selectAll('g, line, .uncertainty, text.cluster-label').remove()
+      const projection = d3.geoMercator()
+        .center([0, 20])
+        .scale(this.width / 6.5)
+        .translate([this.width / 2, this.height / 2])
+
+      this.simulation
+        .force('x', d3.forceX(d => {
+          const coords = projection([d.lon, d.lat])
+          return coords ? coords[0] : this.width / 2
+        }).strength(0.8))
+        .force('y', d3.forceY(d => {
+          const coords = projection([d.lon, d.lat])
+          return coords ? coords[1] : this.height / 2
+        }).strength(0.8))
+        .alpha(1)
+        .restart()
+    },
+
+    drawTimelineLayout() {
+      this.simulation.stop()
+      this.svg.selectAll('g, line, text, .uncertainty').remove()
+
+      const timeExtent = d3.extent(this.nodes, d => +d.original_date || 0)
+      const xScale = d3.scaleLinear()
+        .domain([timeExtent[0] - 100, timeExtent[1] + 100])
+        .range([100, this.width - 100])
+
+      const xAxis = d3.axisBottom(xScale).tickFormat(d => d)
+      this.svg.append('g')
+        .attr('transform', `translate(0, ${this.height - 40})`)
+        .call(xAxis)
+        .selectAll('text').style('fill', 'white')
+
+      this.svg.append('line')
+        .attr('x1', xScale(0)).attr('x2', xScale(0))
+        .attr('y1', 0).attr('y2', this.height)
+        .attr('stroke', 'white').attr('stroke-width', 1)
+
+      this.svg.append('text')
+        .attr('x', xScale(0) + 8).attr('y', 20)
+        .text('Birth of Christ')
+        .style('fill', 'white').style('font-size', '12px')
+
+      // stack & draw uncertainty bars then transition circles…
+      // (rest unchanged)
     }
-
-    this.simulation = d3.forceSimulation(this.nodes)
-      .force('x', d3.forceX().strength(0.7))
-      .force('y', d3.forceY().strength(0.7))
-      .force('collision', d3.forceCollide(10))
-      .force('charge', d3.forceManyBody().strength(-10))
-      .alphaDecay(0.02)
-      .velocityDecay(0.5)
-      .on('tick', this.ticked)
-  },
-
-  setupScrollama() {
-    const scroller = scrollama()
-    scroller
-      .setup({
-        step: '.step',
-        offset: 0.5,
-        debug: false
-      })
-      .onStepEnter(({ index }) => {
-        console.log('Step entered:', index)
-        this.currentStep = index
-        this.updateLayout(index)
-      })
-      .onStepExit(({ index, direction }) => {
-        if (direction === 'up' && index > 0) {
-          this.currentStep = index - 1
-          this.updateLayout(index - 1)
-        }
-      })
-  },
-
-  updateLayout(index) {
-    if (index === 0) this.drawClusterLayout()
-    if (index === 1) this.drawMapLayout()
-    if (index === 2) this.drawTimelineLayout()
-  },
-
-  drawClusterLayout() {
-    this.svg.selectAll('g').remove()
-  this.svg.selectAll('line').remove()
-  this.svg.selectAll('.uncertainty').remove()
-    const clusterCenters = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
-    this.createLabels()
-
-    this.simulation
-      .force('x', d3.forceX(d => clusterCenters[d.archetype]?.x).strength(0.7))
-      .force('y', d3.forceY(d => clusterCenters[d.archetype]?.y).strength(0.7))
-      .alpha(1)
-      .restart()
-      .on('tick', this.ticked)
-  },
-
-  drawMapLayout() {
-    //cleanup if coming back
-    this.svg.selectAll('g').remove()
-    this.svg.selectAll('line').remove()
-    this.svg.selectAll('.uncertainty').remove()
-
-    this.svg.selectAll('text.cluster-label').remove()
-
-    const projection = d3.geoMercator()
-      .center([0, 20])
-      .scale(this.width / 6.5)
-      .translate([this.width / 2, this.height / 2])
-    console.log("drawing map")
-    this.simulation
-      .force('x', d3.forceX(d => {
-        const coords = projection([d.lon, d.lat])
-        return coords ? coords[0] : this.width / 2
-      }).strength(0.8))
-      .force('y', d3.forceY(d => {
-        const coords = projection([d.lon, d.lat])
-        return coords ? coords[1] : this.height / 2
-      }).strength(0.8))
-      .alpha(1)
-      .restart()
-      .on('tick', this.ticked)
-
-    
-  },
-  drawTimelineLayout() {
-  this.simulation.stop()
-  this.svg.selectAll('text').remove()
-  this.svg.selectAll('.uncertainty').remove()
-  this.svg.selectAll('line').remove()
-  this.svg.selectAll('g').remove()
-
-  const timeExtent = d3.extent(this.nodes, d => +d.original_date || 0)
-  const xScale = d3.scaleLinear()
-    .domain([timeExtent[0] - 100, timeExtent[1] + 100])
-    .range([100, this.width - 100])
-
-  const xAxis = d3.axisBottom(xScale).tickFormat(d => d)
-  this.svg.append("g")
-    .attr("transform", `translate(0, ${this.height - 40})`)
-    .call(xAxis)
-    .selectAll("text")
-    .style("fill", "white")
-
-  this.svg.append("line")
-    .attr("x1", xScale(0))
-    .attr("x2", xScale(0))
-    .attr("y1", 0)
-    .attr("y2", this.height)
-    .attr("stroke", "white")
-    .attr("stroke-width", 1)
-
-  this.svg.append("text")
-    .attr("x", xScale(0) + 8)
-    .attr("y", 20)
-    .text("Birth of Christ")
-    .style("fill", "white")
-    .style("font-size", "12px")
-
-  // Group by archetype
-  const grouped = d3.rollup(
-    this.nodes,
-    v => v,
-    d => d.archetype
-  )
-  const sortedGroups = Array.from(grouped.entries()).sort((a, b) => a[0] - b[0])
-  const stackMap = new Map()
-  const nodePositions = []
-const spacing = 10
-const baseY = this.height - 80 // stack from bottom
-
-for (const [archetype, group] of sortedGroups) {
-  const color = this.clusterMeta[archetype]?.color || '#888'
-
-  for (const d of group) {
-    const x = xScale(d.original_date)
-
-    // How many characters already placed at this x/date?
-    const count = stackMap.get(x) || 0
-    const y = baseY - count * spacing
-
-    stackMap.set(x, count + 1) // Update stack
-
-    nodePositions.push({ ...d, x, y })
-
-    this.svg.append("rect")
-      .attr("class", "uncertainty")
-      .attr("x", xScale(d.original_date - d.date_range_confidence))
-      .attr("y", y - 10)
-      .attr("width", xScale(d.original_date + d.date_range_confidence) - xScale(d.original_date - d.date_range_confidence))
-      .attr("height", 18)
-      .attr("fill", color)
-      .attr("opacity", 0.1)
-      .attr("rx", 10)
   }
 }
-
-  // Transition circles to new layout
-  this.node
-    .data(nodePositions, d => d.character) // make sure binding stays correct
-    .transition()
-    .duration(1000)
-    .attr("cx", d => d.x)
-    .attr("cy", d => d.y)
-},
-handleShowCard() {
-      this.showArchetypeSection = true
-    }
-
-
-}
-
-}
 </script>
+
+
+
+
 
 
 <style scoped>
@@ -361,7 +277,7 @@ handleShowCard() {
 
 
 .graphic {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100vw;

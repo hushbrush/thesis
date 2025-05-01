@@ -38,11 +38,19 @@
   </script>
   
   <style scoped>
+
   .question-card {
-    text-align: center;
-    padding: 60px;
-  }
-  
+  position: absolute;
+  top: 20vh;
+  left: 20vh;
+  width: calc(33.33vw);
+  height: calc(60vh );
+  background: rgba(0,0,0,0.7); /* optional: background */
+  padding: 40px;
+  border-radius: 10px;
+  z-index: 10; /* must be higher than SVG */
+}
+
   .question-text {
     font-family: 'Merriweather', serif;
     font-size: 28px;
@@ -51,10 +59,13 @@
   }
   
   .options-line {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 20px;
+}
+
   
   .radio-option {
     font-family: 'Jaro', sans-serif;

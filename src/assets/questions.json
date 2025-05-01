@@ -1,11 +1,75 @@
+
 [
-    {
-      "text": "Which word best describes your energy?",
-      "options": ["Mystic", "Motherly", "Fierce", "Romantic", "Strategist"]
-    },
-    {
-      "text": "What role do you naturally take in a group?",
-      "options": ["Leader", "Caretaker", "Rebel", "Inspiration", "Guide"]
-    }
-  ]
-  
+  {
+    "text": "Which inner force drives you the most?",
+    "options": [
+      "Embrace mystery",  
+      "Keep your word",
+      "Stand unbroken",   
+      "Shape destinies",  
+      "Plan carefully",   
+      "Protect kin",      
+      "Ignite passion"   
+    ]
+  },
+  {
+    "text": "How do you respond when faced with a difficult decision?",
+    "options": [
+      "Seek hidden truths", 
+      "Honor your vows", 
+      "Face the storm",     
+      "Inspire and guide",  
+      "Strategize victory", 
+      "Guard your own",     
+      "Feel the fire"      
+    ]
+  },
+  {
+    "text": "If you could be remembered for one quality, what would it be?",
+    "options": [
+      "Mystical aura",      
+      "Vow-keeper",      
+      "Unyielding spirit",  
+      "Empowering others",  
+      "Strategic mind",     
+      "Family pillar",      
+      "Passionate heart"   
+    ]
+  },
+  {
+    "text": "In a story, which character would you most relate to?",
+    "options": [
+      "The Oracle",         
+      "The Oathkeeper",  
+      "The Resolute",       
+      "The Consort",        
+      "The Strategist",     
+      "The Matriarch",      
+      "The Catalyst"       
+    ]
+  },
+  {
+    "text": "What kind of legacy would you want to leave behind?",
+    "options": [
+      "Mythic legacy",      
+      "Sacred promise",  
+      "Stalwart resolve",   
+      "Influential counsel",
+      "Political acumen",   
+      "Dynastic growth",    
+      "Fateful impact"     
+    ]
+  },
+  {
+    "text": "Which modern character do you most relate to?",
+    "options": [
+      "Eleven (Stranger Things)",                  
+      "Brienne of Tarth (Game of Thrones)",         
+      "Imperator Furiosa (Mad Max: Fury Road)",    
+      "Claire Underwood (House of Cards)",          
+      "Hermione Granger (Harry Potter)",            
+      "Catelyn Stark (Game of Thrones)",            
+      "Katniss Everdeen (The Hunger Games)"         
+    ]
+  }
+]

@@ -20,41 +20,35 @@
   </template>
   
   <script>
-  export default {
-    name: 'CharacterList',
-    data() {
-      return {
-        forceData: [],
-        clusterMeta: [
-          { title: "The Devoted", color: "#DBF39D" },
-          { title: "The Wild Ones", color: "#FF6B6B" },
-          { title: "The Queens", color: "#FBA1B7" },
-          { title: "The Lovers", color: "#6CD4FF" },
-          { title: "The Hearthkeepers", color: "#F9C74F" },
-          { title: "The Outcasts", color: "#9D4EDD" },
-          { title: "The Furies", color: "#EF476F" },
-          { title: "The Protectors", color: "#FFD166" }
-        ]
-      }
-    },
-    computed: {
-      groupedClusters() {
-        const groups = this.clusterMeta.map((meta, i) => ({
-          ...meta,
-          characters: this.forceData.filter(d => d.archetype === i)
-        }))
-        return groups
-      }
-    },
-    mounted() {
-      fetch('/assets/data.json')
-        .then(res => res.json())
-        .then(data => {
-          this.forceData = data
-        })
+export default {
+  name: 'CharacterList',
+  data() {
+    return {
+      forceData: []
     }
+  },
+  computed: {
+    clusterMeta() {
+      return this.$clusterMeta
+    },
+    groupedClusters() {
+      const groups = this.clusterMeta.map((meta, i) => ({
+        ...meta,
+        characters: this.forceData.filter(d => d.archetype === i)
+      }))
+      return groups
+    }
+  },
+  mounted() {
+    fetch('/assets/data.json')
+      .then(res => res.json())
+      .then(data => {
+        this.forceData = data
+      })
   }
-  </script>
+}
+</script>
+
   
   <style scoped>
   .character-list {

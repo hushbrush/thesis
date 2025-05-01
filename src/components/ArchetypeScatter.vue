@@ -17,185 +17,173 @@
 </template>
 
   
-  <script>
-  import * as d3 from 'd3';
-  import data from '@/assets/data.json';
-  import { allCharacteristics } from '@/assets/characteristics.js';
-  
-  //THIS CHART NEEDS A LEGEND REALLY BADLY.
+<script>
+import * as d3 from 'd3';
+import data from '@/assets/data.json';
+import { allCharacteristics } from '@/assets/characteristics.js';
 
-  export default {
-    props: {
-      selectedArchetype: Number,
-      clusterMeta: Array
-    },
-    data() {
-      return {
-        zoomed: false, 
-        chartWidth: window.innerWidth*4/5,
-        chartHeight: window.innerHeight * 2/3,
-        allData: data
-      };
-    },
-    watch: {
-  selectedArchetype: {
-    handler() {
-      this.updateScatter();
-    },
-    immediate: true
+//THIS CHART NEEDS A LEGEND REALLY BADLY.
+
+export default {
+  props: {
+    selectedArchetype: Number
   },
-  zoomed: {
-    handler() {
-      this.updateScatter(); // 👈 redraw chart when zoom changes!
+  data() {
+    return {
+      zoomed: false, 
+      chartWidth: window.innerWidth * 4 / 5,
+      chartHeight: window.innerHeight * 2 / 3,
+      allData: data
+    };
+  },
+  computed: {
+    clusterMeta() {
+      return this.$clusterMeta
     }
-  }
-},
+  },
+  watch: {
+    selectedArchetype: {
+      handler() {
+        this.updateScatter();
+      },
+      immediate: true
+    },
+    zoomed: {
+      handler() {
+        this.updateScatter(); // 👈 redraw chart when zoom changes!
+      }
+    }
+  },
 
-    methods: {
-      updateScatter() {
-        const svg = d3.select(this.$refs.scatter);
-        svg.selectAll('*').remove();
-  
-        const margin = { top: 20, right: 60, bottom: 60, left: 60 };
-        const width = this.chartWidth - margin.left - margin.right;
-        const height = this.chartHeight - margin.top - margin.bottom;
-  
-        const chart = svg.append('g')
-          .attr('transform', `translate(${margin.left},${margin.top})`);
-  
-          const xScale = d3.scaleLinear()
-            .domain(this.zoomed ? [0.5, 1] : [0, 1]) 
-            .range([0, width]);
+  methods: {
+    updateScatter() {
+      const svg = d3.select(this.$refs.scatter);
+      svg.selectAll('*').remove();
 
-        const yScale = d3.scaleLinear()
-            .domain(this.zoomed ? [0, 1] : [0, 1]) 
-            .range([height, 0]);
+      const margin = { top: 20, right: 60, bottom: 60, left: 60 };
+      const width = this.chartWidth - margin.left - margin.right;
+      const height = this.chartHeight - margin.top - margin.bottom;
 
-  
-       
-        chart.append('g')
+      const chart = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+      const xScale = d3.scaleLinear()
+        .domain(this.zoomed ? [0.5, 1] : [0, 1]) 
+        .range([0, width]);
+
+      const yScale = d3.scaleLinear()
+        .domain(this.zoomed ? [0, 1] : [0, 1]) 
+        .range([height, 0]);
+
+      chart.append('g')
         .attr('transform', `translate(0, ${yScale(0.5)})`) 
         .call(d3.axisBottom(xScale));
 
-        // Y Axis: move to center width (x = 0.5)
-        chart.append('g')
+      // Y Axis: move to center width (x = 0.5)
+      chart.append('g')
         .attr('transform', `translate(${xScale(0.5)}, 0)`) 
         .call(d3.axisLeft(yScale));
 
+      // Find most important characteristics for selected archetype
+      const archetypeCharacters = this.allData.filter(d => d.archetype === this.selectedArchetype);
 
-  
-        // Find most important characteristics for selected archetype
-        const archetypeCharacters = this.allData.filter(d => d.archetype === this.selectedArchetype);
-  
-        const averages = {};
-        allCharacteristics.forEach(char => {
-          const total = archetypeCharacters.reduce((sum, d) => {
-            const charMap = new Map(d.characteristics);
-            return sum + (charMap.get(char) || 0);
-          }, 0);
-          averages[char] = total / archetypeCharacters.length;
-        });
-      
-        //now trying highest and second highest:
-        // Sort all characteristics by their average score, descending
-        const sortedCharacteristics = Object.keys(averages).sort((a, b) => averages[b] - averages[a]);
+      const averages = {};
+      allCharacteristics.forEach(char => {
+        const total = archetypeCharacters.reduce((sum, d) => {
+          const charMap = new Map(d.characteristics);
+          return sum + (charMap.get(char) || 0);
+        }, 0);
+        averages[char] = total / archetypeCharacters.length;
+      });
 
-        const highestCharacteristic = sortedCharacteristics[0];      // 🥇 highest
-        const lowestCharacteristic = sortedCharacteristics[sortedCharacteristics.length-1]; // 🥈 second highest
+      //now trying highest and second highest:
+      // Sort all characteristics by their average score, descending
+      const sortedCharacteristics = Object.keys(averages).sort((a, b) => averages[b] - averages[a]);
 
+      const highestCharacteristic = sortedCharacteristics[0];      // 🥇 highest
+      const lowestCharacteristic = sortedCharacteristics[sortedCharacteristics.length - 1]; // 🥈 second highest
 
-        // Now plot ALL characters by those two characteristics
-        chart.selectAll('circle')
-          .data(this.allData)
-          .enter()
-          .append('circle')
-          .attr('cx', d => {
-            const charMap = new Map(d.characteristics);
-            return xScale(charMap.get(highestCharacteristic) || 0);
-          })
-          .attr('cy', d => {
-            const charMap = new Map(d.characteristics);
-            return yScale(charMap.get(lowestCharacteristic) || 0);
-          })
-          .attr('r', 8)
-          .attr('fill', d => this.clusterMeta[d.archetype]?.color || 'white')
-          .style('opacity', 1);
-          
+      // Now plot ALL characters by those two characteristics
+      chart.selectAll('circle')
+        .data(this.allData)
+        .enter()
+        .append('circle')
+        .attr('cx', d => {
+          const charMap = new Map(d.characteristics);
+          return xScale(charMap.get(highestCharacteristic) || 0);
+        })
+        .attr('cy', d => {
+          const charMap = new Map(d.characteristics);
+          return yScale(charMap.get(lowestCharacteristic) || 0);
+        })
+        .attr('r', 8)
+        .attr('fill', d => this.clusterMeta[d.archetype]?.color || 'white')
+        .style('opacity', 1);
 
-
-        // Add X Axis Label (highestCharacteristic)
-        chart.append('text')
+      // Add X Axis Label (highestCharacteristic)
+      chart.append('text')
         .attr('class', 'axis-label') 
         .attr('x', width - 10)
         .attr('y', yScale(0.5) - 10)
         .attr('text-anchor', 'end')
         .text(highestCharacteristic);
 
-        // Add Y Axis Label (lowestCharacteristic)
-        chart.append('text')
+      // Add Y Axis Label (lowestCharacteristic)
+      chart.append('text')
         .attr('class', 'axis-label') 
         .attr('x', xScale(0.5) + 10)
         .attr('y', 10)
         .attr('text-anchor', 'start')
         .text(lowestCharacteristic);
 
-                // Setup tooltip (assumes you have <div id="tooltip"></div> somewhere globally)
-        const tooltip = document.getElementById('tooltip');
+      // Setup tooltip (assumes you have <div id="tooltip"></div> somewhere globally)
+      const tooltip = document.getElementById('tooltip');
 
-        // Add event listeners to circles
-        chart.selectAll('circle')
-            .on('mouseover', function(event, d) {
-                const charMap = new Map(d.characteristics);
+      // Add event listeners to circles
+      chart.selectAll('circle')
+        .on('mouseover', function(event, d) {
+          const charMap = new Map(d.characteristics);
 
-                tooltip.classList.add('visible');
-                tooltip.innerHTML = `
-                <div style="font-weight: bold; font-size: 20px; margin-bottom: 6px;">
-                    ${d.character}
-                </div>
-                <div style="font-size: 14px; margin-bottom: 4px;">${highestCharacteristic} Score: ${(charMap.get(highestCharacteristic) * 100).toFixed(0)}%</div>
-                <div style="font-size: 14px; margin-bottom: 4px;">${lowestCharacteristic} Score: ${(charMap.get(lowestCharacteristic) * 100).toFixed(0)}%</div>
-                <div style="font-size: 14px;">${d.bio}</div>
-                <div style="font-style: italic; font-size: 14px;">${d.title}</div>
-                `;
+          tooltip.classList.add('visible');
+          tooltip.innerHTML = `
+            <div style="font-weight: bold; font-size: 20px; margin-bottom: 6px;">
+              ${d.character}
+            </div>
+            <div style="font-size: 14px; margin-bottom: 4px;">${highestCharacteristic} Score: ${(charMap.get(highestCharacteristic) * 100).toFixed(0)}%</div>
+            <div style="font-size: 14px; margin-bottom: 4px;">${lowestCharacteristic} Score: ${(charMap.get(lowestCharacteristic) * 100).toFixed(0)}%</div>
+            <div style="font-size: 14px;">${d.bio}</div>
+            <div style="font-style: italic; font-size: 14px;">${d.title}</div>
+          `;
 
-                // Dim all circles
-                chart.selectAll('circle')
-                .style('opacity', 0.1);
+          // Dim all circles
+          chart.selectAll('circle')
+            .style('opacity', 0.1);
 
-                // Highlight only hovered one
-                d3.select(this)
-                .style('stroke', 'white' )
-                .style('stroke-width', 2);
+          // Highlight only hovered one
+          d3.select(this)
+            .style('stroke', 'white')
+            .style('stroke-width', 2);
 
-                //highlighting all of the same archetype
-                chart.selectAll('circle')
-                    .filter(d2 => d2.archetype === d.archetype)
-                    .style('opacity', 1);
-
-               
-
-
-
-            })
-            .on('mousemove', function(event) {
-                tooltip.style.left = `${event.pageX + 12}px`;
-                tooltip.style.top = `${event.pageY - 30}px`;
-            })
-            .on('mouseout', function() {
-                tooltip.classList.remove('visible');
-                chart.selectAll('circle')
-                .style('opacity', 0.8)
-                .style('stroke', 'none' );
-
-                
-            });
-
-
-
-      }
+          // highlighting all of the same archetype
+          chart.selectAll('circle')
+            .filter(d2 => d2.archetype === d.archetype)
+            .style('opacity', 1);
+        })
+        .on('mousemove', function(event) {
+          tooltip.style.left = `${event.pageX + 12}px`;
+          tooltip.style.top = `${event.pageY - 30}px`;
+        })
+        .on('mouseout', function() {
+          tooltip.classList.remove('visible');
+          chart.selectAll('circle')
+            .style('opacity', 0.8)
+            .style('stroke', 'none');
+        });
     }
   }
-  </script>
+}
+</script>
+
   
   <style scoped>
 .scatter-container {

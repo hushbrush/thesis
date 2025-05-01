@@ -1,15 +1,11 @@
 <template>
-  <div class="reveal-layout">
-    <!-- SVG mask definition -->
-    <svg viewBox="0 0 800 800" class="mask-svg" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <clipPath id="silhouette-mask">
-          <!-- Replace this path with your actual huntress outline from huntress.svg -->
-          <path d="huntress.svg" fill="white"/>
-        </clipPath>
-      </defs>
-    </svg>
 
+
+  <div class="reveal-layout">
+    
+    <button class="back-button" @click="$emit('restart-quiz')">
+  ← Back to Quiz
+</button>
     <!-- General text background -->
     <div class="text-wall general">
       <p
@@ -33,7 +29,15 @@
     </div>
 
     <!-- Optional: red SVG outline glow -->
-    <img class="huntress-outline" src="@/components/huntress.svg" alt="Huntress Outline" />
+    <img
+  class="archetype-outline"
+  :src="`src/assets/silhouettes/${archetypeIndex}.svg`"
+  :style="{ 'opacity': 1, 'mix-blend-mode': 'screen', 'fill': 'red' }"
+  alt="Silhouette Outline"
+/>
+
+
+
   </div>
   <button class="continue-button" @click="$emit('continue')">
   Continue to Archetypes →
@@ -47,7 +51,14 @@ import quotes from '@/assets/quotes.json'
 export default {
   name: 'ResultReveal',
   
-  emits: ['continue'],
+  emits: ['continue', 'restart-quiz'],
+
+  props: {
+  archetypeIndex: {
+        type: Number,
+        default: 0
+      }
+    },
 
 
   data() {
@@ -68,7 +79,7 @@ export default {
 }
 
 .text-wall {
-  position: absolute;
+  position: relative;
   inset: 0;
   padding: 40px;
   display: flex;
@@ -99,15 +110,26 @@ export default {
   color: red;
 }
 
-.huntress-outline {
+.archetype-outline {
   position: absolute;
   inset: 0;
   margin: auto;
-  width: 40%;
-  height: auto;
+  height: 80%;
+  width: auto;
   z-index: 3;
   pointer-events: none;
   /* mix-blend-mode: screen; */
   /* filter: drop-shadow(0 0 5px red); */
+}
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: transparent;
+  color: white;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 4;
 }
 </style>

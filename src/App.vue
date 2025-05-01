@@ -1,51 +1,52 @@
 <template>
   <div class="app">
-    <!-- Landing screen -->
+    <SilhouetteSVG :highlightedSection="highlightedSection" />
+
+    <!-- Landing screen always shown -->
     <landing-page
-      v-if="currentStep === 'landing'"
+      v-if="currentStep === 'landing' || currentStep === 'quiz'"
+      :showQuiz="currentStep === 'quiz'"
       @start-quiz="startQuiz"
       @open-modal="showModal = true"
     />
 
-    <!-- Quiz -->
+    <!-- Quiz flow floats on top -->
     <quiz-flow
-      v-else-if="currentStep === 'quiz'"
+      v-if="currentStep === 'quiz'"
       :questions="questions"
       @finished="showResult"
     />
 
-    <!-- Results -->
     <result-reveal
       v-else-if="currentStep === 'result'"
+      :archetypeIndex="archetypeIndex"
       @continue="showCluster"
+      @restart-quiz="restartQuiz"
     />
 
-    <!-- SCROLL SECTION -->
+    <!-- Smooth scroll section: Archetype + Character Card -->
     <div v-else-if="currentStep === 'chart'" class="sections-wrapper">
-  <scroll-stage class="section no-snap" />
-  <archetype-card class="section no-snap" />
-</div>
+      <scroll-stage class="no-snap" />
+      <archetype-card
+        class="no-snap"
+        @scroll-to-character="scrollToCharacter"
+      />
+      <character-card class="section snap" ref="characterSection" />
+    </div>
 
-
-    <!-- Cluster -->
     <cluster-force
       v-else-if="currentStep === 'cluster'"
       :nodes="nodes"
       @next="showCharacterList"
     />
 
-    <!-- Character list -->
     <character-list v-else-if="currentStep === 'list'" />
-
-    <!-- Single character page -->
-    <character-card v-else-if="currentStep === 'card'" />
-
-    <!-- Modal -->
     <modal v-if="showModal" @close="showModal = false" />
-  </div>
 
-  <div id="tooltip" class="global-tooltip"></div>
+    <div id="tooltip" class="global-tooltip"></div>
+  </div>
 </template>
+
 
 
 <script>
@@ -60,6 +61,10 @@ import ArchetypeCard from './components/ArchetypeMicro.vue'
 import Questions from "@/assets/questions.json"
 import CharacterCard from './components/CharacterCard.vue'
 import data from '@/assets/data.json' // ✅ Use this exact path
+import SilhouetteSVG from './components/SilhouetteSVG.vue'
+import QuestionCard from './components/QuestionCard.vue'
+
+
 
 
 
@@ -73,27 +78,41 @@ export default {
     CharacterList,
     ScrollStage,
     CharacterCard,
-    ArchetypeCard
+    ArchetypeCard,
+    SilhouetteSVG,
+    QuestionCard
   },
   data() {
     return {
       showModal: false,
       currentStep: 'landing', // 
       questions: Questions,
-      nodes: data
+      nodes: data,
+      highlightedSection: null,
+      archetypeIndex: null
+
 
     }
   },
   methods: {
+    scrollToCharacter() {                       // ← define it here
+      const section = this.$refs.characterSection;
+      if (section && section.$el) {
+        section.$el.scrollIntoView({ behavior: 'smooth' });
+      }
+    },
+    
     startQuiz() {
       this.currentStep = 'quiz'
     },
-    showResult() {
+    showResult(archetypeIndex) {
       this.currentStep = 'result'
+     this.archetypeIndex = archetypeIndex  // 🆕 store the final archetype number
     },
     showCluster() {
-      this.currentStep = 'chart'
-    },
+  this.currentStep = 'cluster'
+},
+
     showCharacterList() {
     this.currentStep = 'list'
     },
@@ -103,8 +122,13 @@ export default {
     }, 
     showCharacterCard() {
       this.currentStep = 'card'
-    }
-
+    },
+    handleQuizAnswer(option) {
+      this.highlightedSection = `q${this.questions.indexOf(option)}`
+    },
+    restartQuiz() {
+  this.currentStep = 'quiz'
+}
 
 
   }
@@ -120,13 +144,13 @@ html, body, #app {
   background-color: #000 !important;
   max-width: 100vw;
   overflow-x: hidden;
-
-
   
 }
-
+.app{
+  padding: 0;
+}
 body {
-  
+  padding: 0;
   font-family: Arial, sans-serif;
   color: white;
 }
@@ -168,8 +192,8 @@ body {
 
 .no-snap {
   min-height: 100vh;
-  height: auto; /* 👈 allow content to expand normally */
-  scroll-snap-align: none; /* 👈 no forced snap */
+  height: auto; 
+  scroll-snap-align: none;
 }
 
 

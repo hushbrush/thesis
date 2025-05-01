@@ -1,6 +1,6 @@
 <template>
     <section class="landing">
-      <div class="text-block">
+      <div class="text-block" v-if="!showQuiz">
         <h1 class="main-title">
           <div class="outlined-title">COOKIE</div>
           <div class="outlined-title">CUTTER</div>
@@ -21,9 +21,16 @@
 <script>
 export default {
   name: "landingPage",
-  emits: ['start-quiz', 'open-modal']  // ✅ add start-quiz here
+  emits: ['start-quiz', 'open-modal'],
+  props: {
+    showQuiz: {
+      type: Boolean,
+      default: false
+    }
+  }
 }
-</script> 
+</script>
+
 
   
 <style scoped>

@@ -74,25 +74,19 @@
 
 <script>
 import data from '@/assets/data.json'
+
 export default {
   name: 'CharacterCard',
   data() {
     return {
       selectedName: '',
-      characters: data,
-      clusterMeta: [
-        { name: "Devoted", color: "#DBF39D" },
-        { name: "Wild Ones", color: "#caf244" },
-        { name: "Queens", color: "#b17fe3" },
-        { name: "Lovers", color: "#ff94d6" },
-        { name: "Hearthkeepers", color: "#F9C74F" },
-        { name: "Outcasts", color: "#9D4EDD" },
-        { name: "Furies", color: "#f56c0a" },
-        { name: "Protectors", color: "#7face3" }
-      ]
+      characters: data
     }
   },
   computed: {
+    clusterMeta() {
+      return this.$clusterMeta
+    },
     selectedCharacter() {
       return this.characters.find(c => c.character === this.selectedName)
     }
@@ -105,24 +99,23 @@ export default {
       // Placeholder for bar chart logic
     },
     archetypeColor(index) {
-       return this.clusterMeta[index]?.color ;
-}
-,
+      return this.clusterMeta[index]?.color
+    },
     silhouetteSelector(index) {
-  try {
-    console.log('index', index);
-    return new URL(`../assets/silhouettes/${index}.svg`, import.meta.url).href;
-  } catch (err) {
-    console.error('Silhouette fallback triggered:', err);
-    return new URL('../assets/silhouettes/default.svg', import.meta.url).href;
+      try {
+        console.log('index', index);
+        return new URL(`../assets/silhouettes/${index}.svg`, import.meta.url).href;
+      } catch (err) {
+        console.error('Silhouette fallback triggered:', err);
+        return new URL('../assets/silhouettes/default.svg', import.meta.url).href;
+      }
+    }
+
+    // the tooltip wont work anymore, need to fix that.
   }
 }
-
-//the tooltip wont work anymore, need to fic that.
- 
-}}
-
 </script>
+
 
 <style scoped>
 .character-card {
