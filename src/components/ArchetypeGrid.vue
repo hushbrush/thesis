@@ -15,7 +15,7 @@ import { allCharacteristics } from '@/assets/characteristics.js';
 export default {
   props: {
     selectedArchetype: Number
-    // removed clusterMeta prop
+   
   },
   data() {
     return {
@@ -26,7 +26,7 @@ export default {
     };
   },
   computed: {
-    // pull in the shared clusterMeta
+   
     clusterMeta() {
       return this.$clusterMeta;
     }
