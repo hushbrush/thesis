@@ -12,7 +12,8 @@
     <div v-if="selectedCharacter" class="card-content">
       <div class="left-column">
         <div class ="basics">
-        <p class="quote">"The duty must be done, even if there is a little suffering involved"</p>
+          <p class="quote">{{ randomQuote }}</p>
+
 
         <p class="bio">
           {{ selectedCharacter.bio }}
@@ -84,6 +85,20 @@ export default {
     }
   },
   computed: {
+    
+    filteredQuotes() {
+  const quotes = this.selectedCharacter?.quotes
+  return Array.isArray(quotes)
+    ? quotes.filter(q => typeof q === 'string' && q.length > 40 && /[.!?]$/.test(q.trim()))
+    : []
+},
+
+  randomQuote() {
+    const q = this.filteredQuotes
+    return q.length ? q[Math.floor(Math.random() * q.length)] : 'No quote available.'
+  }
+,
+
     clusterMeta() {
       return this.$clusterMeta
     },
@@ -214,7 +229,7 @@ font-weight: 400;
 line-height: normal;
 }
 .href {
-  color: #ff0000;}
+  color: #000;}
 .book-info {
   color: #000;
 font-family: Merriweather;
@@ -255,7 +270,7 @@ line-height: normal;
 }
 
 .bar-others {
-  background-color: #f4d6d6;
+  background-color: #dedede;
   transition: width 0.5s ease;
 }
 .role-section{
@@ -329,7 +344,7 @@ line-height: normal;
   font-weight: bold;
   color: #000000;
   margin-top: 1rem;
-  font-size: 1.2rem;
+  font-size: 3rem;
 }
 
 .timeline-dot {

@@ -84,6 +84,17 @@ export default {
         .attr('font-size', 28)
         .attr('font-family', 'jaro')
         .text((d, i) => this.$clusterMeta[i]?.name)
+
+        this.svg.selectAll('image.silhouette')
+          .data(centers)
+          .enter()
+          .append('image')
+          .attr('class', 'silhouette')  
+          .attr('href', (d, i) => new URL(`/src/assets/silhouettes/${i}.svg`, import.meta.url).href)
+          .attr('x', d => d.x - 150)
+          .attr('y', d => d.y - 150)
+          .attr('width', 300)
+          .attr('height', 100)
     },
 
     createNodes() {
@@ -104,7 +115,7 @@ export default {
           tooltip.style.display = 'block'
           tooltip.innerHTML = `
             <div style="font-weight: bold; font-size: 20px;">${d.character}</div>
-            <div style="font-size: 14px; opacity: 0.8;">Archetype: ${d.archetype}</div>
+           
             <div>${d.bio}</div>
             <div style="font-style: italic;">${d.title}</div>`
         })
@@ -148,6 +159,8 @@ export default {
     updateLayout(index) {
       this.svg.selectAll('.cluster-label').remove()
       this.svg.selectAll('.timeline-line, .timeline-text, .uncertainty').remove()
+      this.svg.selectAll('image.silhouette')
+      .style('display', index === 0 ? 'block' : 'none')
 
       if (index === 0) this.drawClusterLayout()
       if (index === 1) this.drawMapLayout()
@@ -155,7 +168,7 @@ export default {
     },
 
     drawClusterLayout() {
-      const centers = computeClusterCentersBySize(this.nodes, this.width, this.height, 210)
+      const centers = computeClusterCentersBySize(this.nodes, this.width*6/7, this.height+150, 220)
       this.createLabels()
 
       this.simulation
@@ -165,6 +178,8 @@ export default {
   .alphaDecay(0.03)
   .velocityDecay(0.5)
   .restart()
+
+
 
     },
 
@@ -329,4 +344,5 @@ export default {
   color: white;
   z-index: 9999;
 }
+
 </style>
