@@ -1,14 +1,18 @@
 <template>
   <div class="app">
-   
+    
+    <!-- instead of landing-page etc, show our test -->
+    <CompareEpics :items="nodes"  />
+     <!-- v-if="currentStep==='chart'" -->
+  
 
     <!-- Landing screen always shown -->
-    <landing-page
+    <!-- <landing-page
       v-if="currentStep === 'landing' || currentStep === 'quiz'"
       :showQuiz="currentStep === 'quiz'"
       @start-quiz="startQuiz"
       @open-modal="showModal = true"
-    />
+    /> -->
 
     <!-- Quiz flow floats on top -->
     <quiz-flow
@@ -62,7 +66,8 @@ import Questions from "@/assets/questions.json"
 import CharacterCard from './components/CharacterCard.vue'
 import data from '@/assets/data.json' // ✅ Use this exact path
 import QuestionCard from './components/QuestionCard.vue'
-
+// import EpicComparer from './components/epicComparer.vue'
+import CompareEpics from './components/CompareEpics.vue'
 
 
 
@@ -78,7 +83,9 @@ export default {
     ScrollStage,
     CharacterCard,
     ArchetypeCard,
-    QuestionCard
+    QuestionCard,
+    // EpicComparer,
+    CompareEpics
   },
   data() {
     return {
