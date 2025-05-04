@@ -33,11 +33,11 @@
      <scroll-stage @reached-end="showArchetypeMicro" />
    </section>
 
-      <!-- SECTION 3: ArchetypeMicro -->
+      <!-- SECTION 4: ArchetypeMicro -->
       <section
   v-if="currentStep === 'archetypeMicro'"
   ref="microSection"
-  class="section no-snap"
+  class="section snap"
 >
 
         <archetype-card
@@ -45,9 +45,9 @@
           :initialSelected="archetypeIndex"
           @scroll-to-character="showCompare"
         />
-      </section>
+  </section>
 
-      <!-- SECTION 4: CompareEpics -->
+      <!-- SECTION 5: CompareEpics -->
       <section v-if="currentStep === 'compare'" class="section snap">
         <CompareEpics
           :items="nodes"
@@ -55,13 +55,13 @@
         />
       </section>
 
-      <!-- SECTION 5: CharacterCard / List -->
+      <!-- SECTION 6: CharacterCard / List -->
       <section v-if="currentStep === 'card' || currentStep === 'list'" class="section snap">
         <character-card v-if="currentStep === 'card'" />
         <character-list v-else />
       </section>
 
-      <!-- SECTION 6: Outro (no-snap) -->
+      <!-- SECTION 7: Outro (no-snap) -->
       <section v-if="currentStep === 'outro'" class="section no-snap">
         <h4>…outro text…</h4>
         <button @click="showModal = true">About the data</button>
