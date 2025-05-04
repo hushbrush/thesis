@@ -6,6 +6,6 @@ import './style.css'
 const app = createApp(App)
 
 
-app.config.globalProperties.$clusterMeta = clusterMeta
+app.config.globalProperties.$clusterMeta = clusterMeta //this line!!!
 
 app.mount('#app')

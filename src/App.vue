@@ -1,18 +1,15 @@
 <template>
   <div class="app">
     
-    <!-- instead of landing-page etc, show our test -->
-    <CompareEpics :items="nodes"  />
-     <!-- v-if="currentStep==='chart'" -->
-  
 
+<!-- section 1: introduction and quiz. -->
     <!-- Landing screen always shown -->
-    <!-- <landing-page
+    <landing-page
       v-if="currentStep === 'landing' || currentStep === 'quiz'"
       :showQuiz="currentStep === 'quiz'"
       @start-quiz="startQuiz"
       @open-modal="showModal = true"
-    /> -->
+    />
 
     <!-- Quiz flow floats on top -->
     <quiz-flow
@@ -20,7 +17,7 @@
       :questions="questions"
       @finished="showResult"
     />
-
+<!-- last part of the first section -->
     <result-reveal
       v-else-if="currentStep === 'result'"
       :archetypeIndex="archetypeIndex"
@@ -28,25 +25,41 @@
       @restart-quiz="restartQuiz"
     />
 
-  <!-- Step 4: Scroll stage with 3 views -->
+  <!-- Section 2: Scroll stage with 3 views -->
     <scroll-stage
       v-if="currentStep === 'chart'"
       @reached-end="showArchetypeMicro"
     />
 
-<!-- Step 5: Archetype microcards after scroll ends -->
+<!-- Section 3: Archetype microcards after scroll ends -->
 <archetype-card
   v-else-if="currentStep === 'archetypeMicro'"
-  @scroll-to-character="showCharacterCard"
+  
+  :nodes="nodes"
+  :initialSelected="archetypeIndex"
+  @scroll-to-character="showCompare"
 />
 
-<!-- Step 6: Character card appears after selection -->
+<!-- Section 4: Comparing epics and getting into the nitty gritties of the characters -->
+<CompareEpics
+  v-else-if="currentStep === 'compare'"
+  :items="nodes"
+   
+   @scroll-to-character="showCharacterCard"
+   
+/>
+
+<!-- section 4 step 2: character cards.-->
 <character-card v-else-if="currentStep === 'card'" />
 
-    
+    <!-- these two I have created but haven't figured -->
     <character-list v-else-if="currentStep === 'list'" />
-    <modal v-if="showModal" @close="showModal = false" />
+    
 
+  <!-- section 5: outro -->
+  <h4> ~one paragraph of outro text here~. If you want to know more about how I put this dataset together, click on the button</h4> 
+  <!-- this modal is supposed to open on click of the button. it's set inside the modal too.  -->
+  <modal v-if="showModal" @close="showModal = false" />
     <div id="tooltip" class="global-tooltip"></div>
   </div>
 </template>
@@ -90,9 +103,10 @@ export default {
   data() {
     return {
       showModal: false,
-      currentStep: 'landing', // 
+      currentStep: 'landing', 
       questions: Questions,
       nodes: data,
+      
       highlightedSection: null,
       archetypeIndex: null
 
@@ -126,6 +140,9 @@ export default {
     this.currentStep = 'archetypeMicro';
   },
 
+  showCompare() {
+    this.currentStep = 'compare';
+  },
   // ✅ Step 6 — After user selects a character
   showCharacterCard() {
     this.currentStep = 'card';

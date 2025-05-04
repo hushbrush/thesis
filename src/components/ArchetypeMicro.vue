@@ -55,7 +55,7 @@
     components: { ArchetypeGrid, ArchetypeScatter, ArchetypeLineage },
     data() {
       return {
-        selectedArchetype: null,
+        selectedArchetype: this.initialSelected,  // seed from prop
         showDropdown: false,
       }
     },
@@ -76,12 +76,32 @@
         return this.clusterMeta[this.selectedArchetype]?.color;
       }
     },
+
+  props: {
+    
+    nodes:         { type: Array, required: true },
+    initialSelected: {     // ← the new prop
+      type: Number,
+      default: 0
+    }
+  },
+  watch: {
+    // in case you ever change `archetypeIndex` in the parent after mount:
+    initialSelected(newVal) {
+      this.selectedArchetype = newVal
+    }
+  },
     methods: {
+      
       toggleDropdown() { this.showDropdown = !this.showDropdown },
-      selectArchetype(i) { this.selectedArchetype = i; this.showDropdown = false },
+    selectArchetype(i) {
+      this.selectedArchetype = i
+      this.showDropdown = false
+    },
     },
     mounted() {
-      setTimeout(() => this.$emit('scroll-to-character'), 1000)
+      this.$emit('scroll-to-character')
+      // setTimeout(() => this.$emit('scroll-to-character'), 1000)
     }
   }
   </script>
