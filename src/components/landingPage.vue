@@ -6,7 +6,7 @@
           <div class="outlined-title">CUTTER</div>
           <div class="filled-title">WOMEN</div>
         </h1>
-        <p class="subtitle">AN ANALYSIS OF FEMALE ARCHETYPES IN EPICS ACROSS TIME & CULTURE.</p>
+        <p class="subtitle">An Analysis of Female Archetypes in Epic Literature across Time & Cultures.</p>
         <!-- <button class="data-button" @click="$emit('open-modal')">Data</button> -->
           <button class="quiz-button" @click="$emit('start-quiz')">START EXPLORING</button>
       </div>
@@ -104,15 +104,16 @@ export default {
   .subtitle {
     padding: 0 0 0 120px;
     color: #FDCD54;
-    width: 450px;
-    font-family: 'merriweather', sans-serif;
+    width: 320px;
     font-size: 24px;
     font-style: normal;
-    font-weight: 700;
-    line-height: normal;
+    line-height: 1.2;
     text-align: center;
+    justify-content: center;
+    font-family: "Jura", sans-serif;  /* or whatever you’re using */
+ 
 
-
+    font-style: normal;
   }
   
   .corner-svg {

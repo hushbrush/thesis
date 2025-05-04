@@ -113,10 +113,15 @@ export default {
 
       // Y axis
       chart.append('g')
-        .call(d3.axisLeft(yScale));
+        .call(d3.axisLeft(yScale))
+        .selectAll("text")
+          .attr('class', 'axis-label-y');
 
       // tooltip behavior
       const tooltip = document.getElementById('tooltip');
+      // grab the base color for the selected archetype
+      const baseColor = this.clusterMeta[this.selectedArchetype]?.color || 'white';
+
       chart.selectAll('rect')
         .on('mouseover', (event, d) => {
           tooltip.classList.add('visible');
@@ -126,13 +131,26 @@ export default {
             </div>
             <div style="font-size:14px;">${d.bio}</div>
             <div style="font-style:italic;font-size:14px;">${d.title}</div>`;
-          chart.selectAll('rect').style('opacity', 0.1);
+          chart.selectAll('rect').style('opacity', 0.2);
           chart.selectAll('rect')
             .filter(d2 =>
               d2.character === d.character ||
               d2.characteristic === d.characteristic
             )
             .style('opacity', 1);
+            chart.selectAll('.axis-label-x')
+            .style('font-size', td => td === d.characteristic ? '40px' : null)
+            .style('fill',       td => td === d.characteristic ? baseColor : null)
+            .style('background', 'rgba(0,0,0,0.5)')
+            .style('padding',    '2px');
+
+          // **highlight the matching Y‐tick** 
+          chart.selectAll('.axis-label-y')
+            .style('font-size', td => td === d.character    ? '40px' : null)
+            .style('fill',       td => td === d.character    ? baseColor : null)
+            .style('background', 'rgba(0,0,0,0.5)')
+            .style('padding',    '2px')
+            .style('z-index', 1000);
         })
         .on('mousemove', event => {
           tooltip.style.left = `${event.pageX + 12}px`;

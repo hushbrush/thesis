@@ -21,7 +21,9 @@
       </div>
       <div class="everything">
             <!-- All charts use the same selectedArchetype + clusterMeta -->
-             <h4> add description of archetype here.</h4>
+              <h4>
+                {{ clusterMeta[selectedArchetype]?.description || '' }}
+              </h4>
             <h2>Important Characteristics</h2>
             <archetype-grid :key="selectedArchetype"         
       :selectedArchetype="selectedArchetype"
@@ -221,6 +223,7 @@ h4 {
   font-family: 'Merriweather', serif;
   font-size: 24px;
   text-align: left;
+  color: white;
 }
 .micro‐wrapper {
   position: sticky;

@@ -20,6 +20,8 @@
       
       alt="Silhouette Outline"
     />
+  
+
     <h1 :style="{ color: clusterMeta[archetypeIndex].color }" class="global-h1">The
   {{ clusterMeta[archetypeIndex].name }}
 </h1>
@@ -146,6 +148,7 @@ beforeMount() {
   margin: 10px;
   position: relative;          /* 🔥 CHANGE from absolute to relative */
 }
+
 
 .back-button {
   position: absolute;

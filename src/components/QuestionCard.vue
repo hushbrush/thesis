@@ -45,7 +45,7 @@
   left: 20vh;
   width: calc(33.33vw);
   height: calc(60vh );
-  background: rgba(0,0,0,0.7); /* optional: background */
+  background: rgba(0,0,0,0.0); /* optional: background */
   padding: 40px;
   border-radius: 10px;
   z-index: 10; /* must be higher than SVG */
