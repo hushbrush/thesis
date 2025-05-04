@@ -1,12 +1,9 @@
-
-
- <template>
+<template>
   <div class="viz-container">
     <svg ref="chart" :width="chartWidth" :height="chartHeight"></svg>
   </div>
 </template>
 
-```vue
 <script>
 import * as d3 from 'd3';
 import data from '@/assets/data.json';
@@ -14,9 +11,10 @@ import { allCharacteristics } from '@/assets/characteristics.js';
 
 export default {
   props: {
-    selectedArchetype: Number
-   
+    selectedArchetype: { type: Number, required: true },
+    clusterMeta:       { type: Array,  required: true }
   },
+
   data() {
     return {
       chartWidth: window.innerWidth,
@@ -25,12 +23,7 @@ export default {
       filteredData: []
     };
   },
-  computed: {
-   
-    clusterMeta() {
-      return this.$clusterMeta;
-    }
-  },
+
   methods: {
     hexToRgb(hex) {
       hex = hex.replace(/^#/, '');
@@ -40,10 +33,21 @@ export default {
       const b = bigint & 255;
       return `${r}, ${g}, ${b}`;
     },
+
+    setFilteredData() {
+      if (this.selectedArchetype == null) {
+        this.filteredData = [];
+      } else {
+        this.filteredData = this.allData.filter(
+          d => d.archetype === this.selectedArchetype
+        );
+      }
+    },
+
     updateChart() {
       const svg = d3.select(this.$refs.chart);
       svg.selectAll('*').remove();
-      if (this.selectedArchetype === null) return;
+      if (this.selectedArchetype == null) return;
 
       const margin = { top: 20, right: 150, bottom: 100, left: 90 };
       const width = this.chartWidth - margin.left - margin.right;
@@ -70,6 +74,7 @@ export default {
         .range([0, height])
         .padding(0.1);
 
+      // flatten into one cell per (characteristic, character)
       const cells = [];
       this.filteredData.forEach(d => {
         const charMap = new Map(d.characteristics.map(c => [c[0], c[1]]));
@@ -84,75 +89,80 @@ export default {
         });
       });
 
+      // draw the heatmap rectangles
       chart.selectAll('rect')
         .data(cells)
         .enter()
         .append('rect')
-        .attr('x', d => xScale(d.characteristic))
-        .attr('y', d => yScale(d.character))
-        .attr('width', xScale.bandwidth())
-        .attr('height', yScale.bandwidth())
-        .attr('fill', d => colorScale(d.value))
-        .style('opacity', 1)
-        .style('border-radius', '50px');
+          .attr('x', d => xScale(d.characteristic))
+          .attr('y', d => yScale(d.character))
+          .attr('width', xScale.bandwidth())
+          .attr('height', yScale.bandwidth())
+          .attr('fill', d => colorScale(d.value))
+          .style('opacity', 1)
+          .style('border-radius', '50px');
 
+      // X axis
       chart.append('g')
         .attr('transform', `translate(0, ${height})`)
         .call(d3.axisBottom(xScale))
         .selectAll("text")
-        .attr('class', 'axis-label-x')
-        .attr("transform", "rotate(-45)")
-        .style("text-anchor", "end");
+          .attr('class', 'axis-label-x')
+          .attr("transform", "rotate(-45)")
+          .style("text-anchor", "end");
 
+      // Y axis
       chart.append('g')
         .call(d3.axisLeft(yScale));
 
+      // tooltip behavior
       const tooltip = document.getElementById('tooltip');
       chart.selectAll('rect')
         .on('mouseover', (event, d) => {
           tooltip.classList.add('visible');
           tooltip.innerHTML = `
-            <div style="font-weight: bold; font-size: 20px; margin-bottom: 6px;">
-              ${d.character}: ${(d.value * 100).toFixed(0)}% ${d.characteristic}
+            <div style="font-weight:bold;font-size:20px;margin-bottom:6px;">
+              ${d.character}: ${(d.value*100).toFixed(0)}% ${d.characteristic}
             </div>
-            <div style="font-size: 14px; ">${d.bio}</div>
-            <div style="font-style: italic; font-size: 14px;">${d.title}</div>
-          `;
+            <div style="font-size:14px;">${d.bio}</div>
+            <div style="font-style:italic;font-size:14px;">${d.title}</div>`;
           chart.selectAll('rect').style('opacity', 0.1);
-          const hoveredCharacter = d.character;
-          const hoveredCharacteristic = d.characteristic;
           chart.selectAll('rect')
-            .filter(d2 => d2.character === hoveredCharacter || d2.characteristic === hoveredCharacteristic)
+            .filter(d2 =>
+              d2.character === d.character ||
+              d2.characteristic === d.characteristic
+            )
             .style('opacity', 1);
         })
         .on('mousemove', event => {
           tooltip.style.left = `${event.pageX + 12}px`;
-          tooltip.style.top = `${event.pageY - 30}px`;
+          tooltip.style.top  = `${event.pageY - 30}px`;
         })
         .on('mouseout', () => {
           tooltip.classList.remove('visible');
-          chart.selectAll('rect')
-            .style('opacity', 1)
-            .attr('stroke', 'none');
+          chart.selectAll('rect').style('opacity', 1);
         });
     }
   },
+
+  mounted() {
+    console.log(
+      '[ArchetypeGrid] mounted, received selectedArchetype =',
+      this.selectedArchetype
+    );
+    this.setFilteredData();
+    this.updateChart();
+  },
+
   watch: {
-    selectedArchetype: {
-      handler(newVal) {
-        if (newVal === null) {
-          this.filteredData = [];
-          return;
-        }
-        this.filteredData = this.allData.filter(d => d.archetype === newVal);
-        this.updateChart();
-      },
-      immediate: true
+    selectedArchetype(newVal) {
+      console.log('[ArchetypeGrid] archetype changed →', newVal);
+      this.setFilteredData();
+      this.updateChart();
     }
   }
 };
 </script>
-```
 
 <style scoped>
 .viz-container {
@@ -164,5 +174,4 @@ export default {
   font-size: 20px;
   fill: white;
 }
-
 </style>

@@ -1,65 +1,75 @@
 <template>
   <div class="app">
-    
+    <div class="sections-wrapper">
 
-<!-- section 1: introduction and quiz. -->
-    <!-- Landing screen always shown -->
-    <landing-page
-      v-if="currentStep === 'landing' || currentStep === 'quiz'"
-      :showQuiz="currentStep === 'quiz'"
-      @start-quiz="startQuiz"
-      @open-modal="showModal = true"
-    />
+         <!-- SECTION 1: Landing / Quiz -->
+   <section v-if="currentStep === 'landing' || currentStep === 'quiz'" class="section snap">
+     <landing-page
+       :showQuiz="currentStep === 'quiz'"
+       @start-quiz="startQuiz"
+       @open-modal="showModal = true"
+     />
+     <quiz-flow
+       v-if="currentStep === 'quiz'"
+       :questions="questions"
+       @finished="showResult"
+     />
+   </section>
 
-    <!-- Quiz flow floats on top -->
-    <quiz-flow
-      v-if="currentStep === 'quiz'"
-      :questions="questions"
-      @finished="showResult"
-    />
-<!-- last part of the first section -->
-    <result-reveal
-      v-else-if="currentStep === 'result'"
-      :archetypeIndex="archetypeIndex"
-      @continue="showCluster"
-      @restart-quiz="restartQuiz"
-    />
+   <!-- SECTION 2: Result reveal -->
+   <section v-if="currentStep === 'result'" class="section snap">
+     <result-reveal
+       :archetypeIndex="archetypeIndex"
+       @continue="showCluster"
+       @restart-quiz="restartQuiz"
+     />
+   </section>
+      <!-- SECTION 3: ScrollStage (you were missing this) -->
+   <section
+     v-if="currentStep === 'chart'"
+     ref="chartSection"
+     class="section no-snap"
+   >
+     <scroll-stage @reached-end="showArchetypeMicro" />
+   </section>
 
-  <!-- Section 2: Scroll stage with 3 views -->
-    <scroll-stage
-      v-if="currentStep === 'chart'"
-      @reached-end="showArchetypeMicro"
-    />
+      <!-- SECTION 3: ArchetypeMicro -->
+      <section
+  v-if="currentStep === 'archetypeMicro'"
+  ref="microSection"
+  class="section no-snap"
+>
 
-<!-- Section 3: Archetype microcards after scroll ends -->
-<archetype-card
-  v-else-if="currentStep === 'archetypeMicro'"
-  
-  :nodes="nodes"
-  :initialSelected="archetypeIndex"
-  @scroll-to-character="showCompare"
-/>
+        <archetype-card
+          :nodes="nodes"
+          :initialSelected="archetypeIndex"
+          @scroll-to-character="showCompare"
+        />
+      </section>
 
-<!-- Section 4: Comparing epics and getting into the nitty gritties of the characters -->
-<CompareEpics
-  v-else-if="currentStep === 'compare'"
-  :items="nodes"
-   
-   @scroll-to-character="showCharacterCard"
-   
-/>
+      <!-- SECTION 4: CompareEpics -->
+      <section v-if="currentStep === 'compare'" class="section snap">
+        <CompareEpics
+          :items="nodes"
+          @scroll-to-character="showCharacterCard"
+        />
+      </section>
 
-<!-- section 4 step 2: character cards.-->
-<character-card v-else-if="currentStep === 'card'" />
+      <!-- SECTION 5: CharacterCard / List -->
+      <section v-if="currentStep === 'card' || currentStep === 'list'" class="section snap">
+        <character-card v-if="currentStep === 'card'" />
+        <character-list v-else />
+      </section>
 
-    <!-- these two I have created but haven't figured -->
-    <character-list v-else-if="currentStep === 'list'" />
-    
+      <!-- SECTION 6: Outro (no-snap) -->
+      <section v-if="currentStep === 'outro'" class="section no-snap">
+        <h4>…outro text…</h4>
+        <button @click="showModal = true">About the data</button>
+        <modal v-if="showModal" @close="showModal = false" />
+      </section>
 
-  <!-- section 5: outro -->
-  <h4> ~one paragraph of outro text here~. If you want to know more about how I put this dataset together, click on the button</h4> 
-  <!-- this modal is supposed to open on click of the button. it's set inside the modal too.  -->
-  <modal v-if="showModal" @close="showModal = false" />
+    </div>
+
     <div id="tooltip" class="global-tooltip"></div>
   </div>
 </template>
@@ -71,19 +81,13 @@ import Modal from './components/modal.vue'
 import LandingPage from './components/landingPage.vue'
 import QuizFlow from './components/QuizFlow.vue'
 import ResultReveal from './components/ResultReveal.vue'
-import ClusterForce from './components/ClusterForce.vue'
 import CharacterList from './components/CharacterList.vue'
 import ScrollStage from './components/ScrollStage.vue'
 import ArchetypeCard from './components/ArchetypeMicro.vue'
-import Questions from "@/assets/questions.json"
 import CharacterCard from './components/CharacterCard.vue'
-import data from '@/assets/data.json' // ✅ Use this exact path
-import QuestionCard from './components/QuestionCard.vue'
-// import EpicComparer from './components/epicComparer.vue'
 import CompareEpics from './components/CompareEpics.vue'
-
-
-
+import Questions from "@/assets/questions.json"
+import data from '@/assets/data.json'
 
 export default {
   components: {
@@ -91,76 +95,70 @@ export default {
     LandingPage,
     QuizFlow,
     ResultReveal,
-    ClusterForce,
     CharacterList,
     ScrollStage,
     CharacterCard,
     ArchetypeCard,
-    QuestionCard,
-    // EpicComparer,
     CompareEpics
   },
   data() {
     return {
       showModal: false,
-      currentStep: 'landing', 
+      currentStep: 'landing',
       questions: Questions,
       nodes: data,
-      
-      highlightedSection: null,
       archetypeIndex: null
-
-
     }
   },
+  watch: {
+    currentStep(newStep) {
+      console.log('[App] currentStep →', newStep);
+    }},
   methods: {
-  scrollToCharacter() {
-    const section = this.$refs.characterSection;
-    if (section && section.$el) {
-      section.$el.scrollIntoView({ behavior: 'smooth' });
+    startQuiz() {
+      this.currentStep = 'quiz';
+    },
+
+    showResult(archetypeIndex) {
+      this.currentStep = 'result';
+      this.archetypeIndex = archetypeIndex;
+    },
+
+    // Step 4 — show scroll-stage and snap to it
+    showCluster() {
+      console.log('[App] showCluster() — about to switch to chart');
+      this.currentStep = 'chart';
+      this.$nextTick(() => {
+        this.$refs.chartSection.scrollIntoView({ behavior: 'smooth' });
+      });
+    },
+
+    // Step 5 — show archetype-micro and snap to it
+    showArchetypeMicro() {
+      this.currentStep = 'archetypeMicro';
+      console.log('[App] showArchetypeMicro() called; archetypeIndex =', this.archetypeIndex);
+      this.$nextTick(() => {
+        this.$refs.microSection.scrollIntoView({ behavior: 'smooth' });
+      console.log('[App] after switch, currentStep =', this.currentStep,
+                  'microSection ref =', this.$refs.microSection);
+    });
+    },
+
+    // Step 6 and beyond…
+    showCompare() {
+      console.log('[App] showCompare() — switching to compare');
+      this.currentStep = 'compare';
+    },
+    showCharacterCard() {
+      this.currentStep = 'card';
+    },
+    showCharacterList() {
+      this.currentStep = 'list';
+    },
+    restartQuiz() {
+      this.currentStep = 'quiz';
     }
-  },
-
-  startQuiz() {
-    this.currentStep = 'quiz';
-  },
-
-  showResult(archetypeIndex) {
-    this.currentStep = 'result';
-    this.archetypeIndex = archetypeIndex;
-  },
-
-  // ✅ Step 4 — Enter scroll stage
-  showCluster() {
-    this.currentStep = 'chart';
-  },
-
-  // ✅ Step 5 — After scroll ends
-  showArchetypeMicro() {
-    this.currentStep = 'archetypeMicro';
-  },
-
-  showCompare() {
-    this.currentStep = 'compare';
-  },
-  // ✅ Step 6 — After user selects a character
-  showCharacterCard() {
-    this.currentStep = 'card';
-  },
-
-  showCharacterList() {
-    this.currentStep = 'list';
-  },
-
-  handleQuizAnswer(option) {
-    this.highlightedSection = `q${this.questions.indexOf(option)}`;
-  },
-
-  restartQuiz() {
-    this.currentStep = 'quiz';
   }
-}
-
 }
 </script>
 
@@ -168,75 +166,40 @@ export default {
 html, body, #app {
   margin: 0;
   padding: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #000 !important;
-  max-width: 100vw;
-  /* overflow-x: hidden; */
 }
-#app {
-  margin: 0 !important; /* Force-reset any injected margin */
-  padding: 0 !important;
-  width: 100% !important;
-  box-sizing: border-box;
-}
-
-
-body {
+section {
+  margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
-  color: white;
 }
-.global-tooltip {
-  max-width: 300px;
-  position: absolute;
-  display: block;
-  background: #000000dd;
-  padding: 6px 10px;
-  font-size: 16px;
-  border-radius: 6px;
-  pointer-events: all;
-  z-index: 9999;
+body {
+  display: block !important;
+  place-items: unset !important;
 }
 
-.global-tooltip.visible {
-  display: block;
-  opacity: 1;
+/* make sure your app really fills the viewport */
+#app, 
+.app {
+  width: 100vw;
+  height: 100vh;
 }
 
 
 .sections-wrapper {
+  width: 100%;
   height: 100vh;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
 }
-
-.section {
-  width: 100%;
-}
-
-.snap {
+.section.snap {
+  /* at least one viewport tall, but can grow to fit content */
+  min-height: 100vh;
   scroll-snap-align: start;
-  min-height: 100vh;
-  height: 100vh;
 }
 
-.no-snap {
-  min-height: 100vh;
-  height: auto; 
+.section.no-snap {
   scroll-snap-align: none;
+  min-height: 100vh;
+  height: auto;
 }
-* {
-  box-sizing: border-box;
-}
-
-.app {
-  width: 100vw;
-  max-width: 100vw;
-  overflow-x: hidden;
-  padding: 0;
-  margin: 0;
-}
-
 </style>

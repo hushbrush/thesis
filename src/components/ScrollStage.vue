@@ -43,6 +43,7 @@ export default {
   },
 
   mounted() {
+    console.log('[ScrollStage] mounted, currentStep =', this.currentStep);
     if (!this.$clusterMeta) {
       console.warn('⚠️ $clusterMeta is not defined! Check main.js')
     }
@@ -145,9 +146,11 @@ export default {
       const scroller = scrollama()
       scroller.setup({ step: '.step', offset: 0.6 })
         .onStepEnter(({ index }) => {
+          console.log('[ScrollStage] onStepEnter index =', index);
           this.currentStep = index
           this.updateLayout(index)
           if (index === 3) {
+            console.log('[ScrollStage] about to emit reached-end');
             setTimeout(() => {
               this.$emit('reached-end')
             }, 2000) // Try 500–800ms to start with
@@ -268,7 +271,7 @@ export default {
 </script>
 
 <style scoped>
-.scrolly-container {
+/* .scrolly-container {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -277,7 +280,16 @@ export default {
   overflow-x: hidden;
   overflow-y: auto;
   background: black;
+  position: relative;
+width: 100%;      
+overflow: visible; /* 
+/* } */
+.scrolly-container {
+  position: relative;
+  overflow: visible;  /* let the parent sections-wrapper scroll */
+  width: 100%;
 }
+
 
 .background-layer {
   position: fixed;
@@ -296,7 +308,7 @@ export default {
 .bg-step-2 { background: black; }
 
 .graphic {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   width: 100vw;

@@ -23,7 +23,9 @@
             <!-- All charts use the same selectedArchetype + clusterMeta -->
              <h4> add description of archetype here.</h4>
             <h2>Important Characteristics</h2>
-            <archetype-grid :selectedArchetype="selectedArchetype" :clusterMeta="clusterMeta" />
+            <archetype-grid :key="selectedArchetype"         
+      :selectedArchetype="selectedArchetype"
+      :clusterMeta="clusterMeta"/>
             <h2 class="h2">
                 Explore other characteristics by the 
                 <span class="specialText" :style="{ color: selectedColor }">{{ selectedArchetypeName }}</span>
@@ -32,7 +34,11 @@
             <h4> X axis = Highest Characteristic</h4>
             <h4> Y axis = Lowest Characteristic  </h4>
 
-            <archetype-scatter :selectedArchetype="selectedArchetype" :clusterMeta="clusterMeta" />
+            <archetype-scatter
+      :key="selectedArchetype + '-scatter'"
+      :selectedArchetype="selectedArchetype"
+      :clusterMeta="clusterMeta"
+    />
             
             <h2 class="h2">
                 Origin of 
@@ -41,7 +47,11 @@
             </h2>
             
           
-            <archetype-lineage :selectedArchetype="selectedArchetype" :clusterMeta="clusterMeta" />
+            <archetype-lineage
+      :key="selectedArchetype + '-lineage'"
+      :selectedArchetype="selectedArchetype"
+      :clusterMeta="clusterMeta"
+    />
             </div>
         </div>
   </template>
@@ -78,9 +88,7 @@
     },
 
   props: {
-    
-    nodes:         { type: Array, required: true },
-    initialSelected: {     // ← the new prop
+    initialSelected: {
       type: Number,
       default: 0
     }
@@ -97,10 +105,17 @@
     selectArchetype(i) {
       this.selectedArchetype = i
       this.showDropdown = false
+      console.log(
+     '[ArchetypeMicro] dropdown picked →',
+     i,
+     'and local selectedArchetype is now →',
+     this.selectedArchetype
+   )
     },
     },
     mounted() {
-      this.$emit('scroll-to-character')
+      console.log('[ArchetypeMicro] mounted; initialSelected =', this.initialSelected);
+      // this.$emit('scroll-to-character')
       // setTimeout(() => this.$emit('scroll-to-character'), 1000)
     }
   }
@@ -207,6 +222,11 @@ h4 {
   font-size: 24px;
   text-align: left;
 }
+.micro‐wrapper {
+  position: sticky;
+  top: 0/* the height of your nav or header, or 0 */
+}
+
 
   </style>
   

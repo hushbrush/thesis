@@ -1,5 +1,6 @@
 <template>
-  <div class="reveal-layout" :style="{ '--highlight-color': clusterMeta[archetypeIndex].color }">
+ <div v-if="archetypeIndex !== null" class="reveal-layout" 
+ :style="{ '--highlight-color': clusterMeta[archetypeIndex]?.color || '#fff' }">
     <button class="back-button" @click="$emit('restart-quiz')">← Back to Quiz</button>
 
     <!-- General text background -->
@@ -39,11 +40,18 @@ export default {
   name: 'ResultReveal',
   emits: ['continue', 'restart-quiz'],
   props: {
-    archetypeIndex: {
-      type: Number,
-      default: 0
-    }
-  },
+  archetypeIndex: {
+    type: Number,
+    required: true
+  }
+},
+beforeMount() {
+  if (this.archetypeIndex == null) {
+    // Bail out early so render() never runs
+    return;
+  }
+}
+,
   computed: {
     filteredQuotes() {
       const result = data

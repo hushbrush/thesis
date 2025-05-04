@@ -39,6 +39,9 @@
         centerQuote: ''
       };
     },
+    mounted() {
+  console.log('[CompareEpics] mounted; currentStep should be "compare"');
+},
     methods: {
       setCenterQuote(q) {
         this.centerQuote = q;
