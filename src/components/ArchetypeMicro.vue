@@ -1,5 +1,5 @@
 <template>
-    <div class="archetype-micro-container">
+   <div class="archetype-micro-container" ref="container">
       <div class="dropdown-container">
         <div @click="toggleDropdown">
           <span class="dropdown-label" :style="{ color: selectedColor }">
@@ -54,8 +54,9 @@
       :selectedArchetype="selectedArchetype"
       :clusterMeta="clusterMeta"
     />
-            </div>
-        </div>
+      </div>
+      <div ref="sentinel" style="height:1px"></div>
+    </div>
   </template>
   
   <script>
@@ -69,6 +70,7 @@
       return {
         selectedArchetype: this.initialSelected,  // seed from prop
         showDropdown: false,
+        scrollContainer: null
       }
     },
     computed: {
@@ -103,24 +105,49 @@
   },
     methods: {
       
-      toggleDropdown() { this.showDropdown = !this.showDropdown },
-    selectArchetype(i) {
-      this.selectedArchetype = i
-      this.showDropdown = false
-      console.log(
-     '[ArchetypeMicro] dropdown picked →',
-     i,
-     'and local selectedArchetype is now →',
-     this.selectedArchetype
-   )
-    },
-    },
+      toggleDropdown() {
+        console.log('[ArchetypeMicro] toggleDropdown → before:', this.showDropdown);
+        this.showDropdown = !this.showDropdown;
+        console.log('[ArchetypeMicro] toggleDropdown → after:', this.showDropdown);
+      },
+      selectArchetype(i) {
+          console.log('[ArchetypeMicro] selectArchetype → picking index', i);
+          this.selectedArchetype = i;
+          this.showDropdown = false;
+          console.log('[ArchetypeMicro] selectArchetype → now selectedArchetype =', this.selectedArchetype);
+          
+        },
+        onScroll() {
+        const section = this.scrollContainer;
+        const sentinel = this.$refs.sentinel;
+        // when sentinel’s top comes into view at bottom of section:
+        if (section.scrollTop + section.clientHeight >= sentinel.offsetTop - 2) {
+          console.log('[ArchetypeMicro] reached bottom; emitting scroll-to-character');
+          this.$emit('scroll-to-character');
+          section.removeEventListener('scroll', this.onScroll);
+      }
+
+    
+    }},
     mounted() {
-      console.log('[ArchetypeMicro] mounted; initialSelected =', this.initialSelected);
-      // this.$emit('scroll-to-character')
-      // setTimeout(() => this.$emit('scroll-to-character'), 1000)
-    }
+        console.log('[ArchetypeMicro] mounted; initialSelected =', this.initialSelected);
+        // find the parent <section> that actually scrolls:
+        const section = this.$el.closest('.archetype-micro-scroll');
+        if (section) {
+          console.log('[ArchetypeMicro] attaching scroll listener to section');
+          this.scrollContainer = section;
+          section.addEventListener('scroll', this.onScroll);
+        } else {
+          console.warn('[ArchetypeMicro] could not find .archetype-micro-scroll');
+        }
+    },
+    beforeUnmount() {
+      if (this.scrollContainer) {
+        this.scrollContainer.removeEventListener('scroll', this.onScroll);
+      }
   }
+}
+  
   </script>
   
   

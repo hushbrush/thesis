@@ -8,12 +8,7 @@
       <p class="quote" v-html="filteredQuotes"></p>
     </div>
 
-    <!-- Masked red text -->
-    <!-- <div class="text-wall inside" >
-      <p class="quote" v-html="filteredQuotes"></p>
-    </div> -->
-
-    <!-- Optional: red SVG outline glow -->
+    
     <img
       class="archetype-outline"
       :src="`src/assets/silhouettes/${archetypeIndex}.svg`"
@@ -86,7 +81,7 @@ computed: {
       .map((q, i) => `<span class="${(i + 1) % 7 === 0 ? 'highlight' : ''}">${q}</span>`)
       .join(' ');
 
-    console.log('🔗 filteredQuotes HTML:', html);
+    
     return html;
   },
 

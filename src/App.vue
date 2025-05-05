@@ -37,7 +37,7 @@
       <section
   v-if="currentStep === 'archetypeMicro'"
   ref="microSection"
-  class="section snap"
+  class="section snap archetype-micro-scroll"
 >
 
         <archetype-card
@@ -48,7 +48,11 @@
   </section>
 
       <!-- SECTION 5: CompareEpics -->
-      <section v-if="currentStep === 'compare'" class="section snap">
+      <section
+  v-if="currentStep === 'compare'"
+  ref="compareSection"
+  class="section snap"
+>
         <CompareEpics
           :items="nodes"
           @scroll-to-character="showCharacterCard"
@@ -134,21 +138,41 @@ export default {
     },
 
     // Step 5 — show archetype-micro and snap to it
-    showArchetypeMicro() {
-      this.currentStep = 'archetypeMicro';
-      console.log('[App] showArchetypeMicro() called; archetypeIndex =', this.archetypeIndex);
-      this.$nextTick(() => {
-        this.$refs.microSection.scrollIntoView({ behavior: 'smooth' });
-      console.log('[App] after switch, currentStep =', this.currentStep,
-                  'microSection ref =', this.$refs.microSection);
-    });
-    },
 
-    // Step 6 and beyond…
-    showCompare() {
-      console.log('[App] showCompare() — switching to compare');
-      this.currentStep = 'compare';
-    },
+    async showArchetypeMicro() {
+    console.log('[App] showArchetypeMicro() called — before switching, currentStep=', this.currentStep);
+    this.currentStep = 'archetypeMicro';
+    await this.$nextTick();
+    const el = this.$refs.microSection;
+    console.log('[App] showArchetypeMicro() — microSection ref is', el);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      console.warn('[App] showArchetypeMicro() — microSection ref missing');
+    }
+  },
+
+   
+
+
+    
+    async showCompare() {
+    console.log('[App] showCompare() called — before switching, currentStep=', this.currentStep);
+    this.currentStep = 'compare';
+    await this.$nextTick();
+    const el = this.$refs.compareSection;
+    console.log('[App] showCompare() — ref compareSection is', el);
+    if (el) {
+      console.log('[App] showCompare() — scrolling into view');
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      console.warn('[App] showCompare() — compareSection ref missing');
+    }
+  },
+
+
+
+
     showCharacterCard() {
       this.currentStep = 'card';
     },
@@ -197,6 +221,14 @@ body {
   /* at least one viewport tall, but can grow to fit content */
   min-height: 100vh;
   scroll-snap-align: start;
+
+  
+
+}
+/* only the ArchetypeMicro section scrolls internally */
+.archetype-micro-scroll {
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .section.no-snap {
