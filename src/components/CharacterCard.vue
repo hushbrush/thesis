@@ -1,7 +1,7 @@
 <template>
   <div class="character-card">
     <div class="selector">
-      <select v-model="selectedName" class="character-select"> //how can I make this dropdown the colour of the archetype
+      <select v-model="selectedName" class="character-select">
         <option disabled value="">-- Select a Character --</option>
         <option v-for="char in characters" :key="char.character" :value="char.character">
           {{ char.character }}
@@ -107,6 +107,9 @@ export default {
     }
   },
   methods: {
+    mounted() {
+  console.log('[CharacterCard] mounted; selectedName=', this.selectedName);
+},
     archetypeName(index) {
       return this.clusterMeta[index]?.name || 'Unknown'
     },

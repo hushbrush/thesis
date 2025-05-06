@@ -1,7 +1,7 @@
 <template>
   <div class="app">
-    <div class="sections-wrapper">
-
+    <div class="sections-wrapper" ref="wrapper">
+      
          <!-- SECTION 1: Landing / Quiz -->
    <section v-if="currentStep === 'landing' || currentStep === 'quiz'" class="section snap">
      <landing-page
@@ -49,20 +49,24 @@
 
       <!-- SECTION 5: CompareEpics -->
       <section
-  v-if="currentStep === 'compare'"
-  ref="compareSection"
-  class="section snap"
->
-        <CompareEpics
-          :items="nodes"
-          @scroll-to-character="showCharacterCard"
-        />
+        v-if="currentStep === 'compare'"
+        ref="compareSection"
+        class="section snap compare-scroll"
+        style="height: 100vh; overflow-y: auto;"
+        @scroll.passive="onCompareScroll"
+        @wheel.passive="onCompareWheel"
+      >
+        <CompareEpics :items="nodes" />
       </section>
 
-      <!-- SECTION 6: CharacterCard / List -->
-      <section v-if="currentStep === 'card' || currentStep === 'list'" class="section snap">
-        <character-card v-if="currentStep === 'card'" />
-        <character-list v-else />
+
+      <!-- SECTION 6: CharacterCard  -->
+      <section
+          v-if="currentStep === 'card'"
+          ref="cardSection"
+          class="section snap"
+        >
+          <character-card />
       </section>
 
       <!-- SECTION 7: Outro (no-snap) -->
@@ -119,6 +123,25 @@ export default {
       console.log('[App] currentStep →', newStep);
     }},
   methods: {
+     // 1️⃣ Wrapper scroll callback
+ onWrapperScroll() {
+   console.log('[App] 🔄 wrapper scroll event fired');
+   if (this.currentStep !== 'compare') return;
+   const sec = this.$refs.compareSection;
+   const { scrollTop, clientHeight, scrollHeight } = sec;
+   console.log(
+     '[App]   compareSection scrollTop:', scrollTop,
+     'clientHeight:', clientHeight,
+     'scrollHeight:', scrollHeight
+   );
+   if (scrollTop + clientHeight >= scrollHeight - 2) {
+     console.log('[App] 🎯 reached bottom of compareSection → showCharacterCard()');
+     this.showCharacterCard();
+   }
+ },
+
+
+
     startQuiz() {
       this.currentStep = 'quiz';
     },
@@ -152,7 +175,32 @@ export default {
     }
   },
 
-   
+  onCompareScroll() {
+    console.log('[App] 🔄 onCompareScroll fired; currentStep=', this.currentStep);
+
+      const s = this.$refs.compareSection;
+
+      console.log('[App]   compareSection metrics →', {
+          scrollTop: s.scrollTop,
+          clientHeight: s.clientHeight,
+          scrollHeight: s.scrollHeight
+    });
+      if (s.scrollTop + s.clientHeight >= s.scrollHeight - 2) {
+        console.log('[App] compareSection bottom reached → showCharacterCard()');
+        this.showCharacterCard();
+      }
+    },
+    async showCharacterCard() {
+
+      console.log('[App] showCharacterCard() called — currentStep =', this.currentStep);
+      this.currentStep = 'card';
+      await this.$nextTick();
+
+      console.log('[App] showCharacterCard() — after nextTick, refs:', this.$refs.cardSection);
+      this.$refs.cardSection?.scrollIntoView({ behavior: 'smooth' });
+      console.log('[App] showCharacterCard() — invoked on cardSection');
+    },
+  
 
 
     
@@ -169,9 +217,19 @@ export default {
       console.warn('[App] showCompare() — compareSection ref missing');
     }
   },
+  
 
 
-
+  onCompareWheel(e) {
+      console.log('[App] ⚙️ onCompareWheel fired; deltaY=', e.deltaY);
+      // only advance on a downward gesture
+      if (e.deltaY > 0) {
+        console.log('[App] 👉 wheel down in compareSection → showCharacterCard()');
+        this.showCharacterCard();
+        // only once: remove this listener so you don’t retrigger
+        this.$refs.compareSection.removeEventListener('wheel', this.onCompareWheel);
+      }
+    },
 
     showCharacterCard() {
       this.currentStep = 'card';
@@ -182,6 +240,10 @@ export default {
     restartQuiz() {
       this.currentStep = 'quiz';
     }
+  },
+  mounted() {
+  console.log('[App] mounted; currentStep=', this.currentStep);
+    // if you ever attach wrapper-level scrolling, log here too
   }
 }
 </script>
@@ -236,4 +298,60 @@ body {
   min-height: 100vh;
   height: auto;
 }
+
+/* in your global or component CSS */
+.compare-scroll {
+  height: 100vh;
+  overflow-y: auto;
+}
+
+
+/* global drop down */
+
+.dropdown-container {
+    text-transform: uppercase;;
+  width: 500px;
+  font-family: jaro;
+  position: relative; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+  border: 2px solid rgba(255, 255, 255, 0.50);
+  background: rgba(251, 251, 251, 0.50);
+  font-size: 60px;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.dropdown-options {
+  width: 100%; /* ✨ Full width matching dropdown */
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #444;
+  color: white;
+  margin-top: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  z-index: 10;
+}
+
+
+.dropdown-option {
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+.dropdown-arrow {
+  width: 8px; /* adjust size */
+  height: 8px;
+ 
+  
+}
+  .dropdown-option:hover {
+    background-color: #222;
+  }
+
+
 </style>

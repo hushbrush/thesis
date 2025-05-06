@@ -193,7 +193,27 @@ line-height: normal;
   z-index: 1;
 }
 
-  .dropdown-container {
+/* //charts */
+.axis-label {
+text-transform: capitalize;
+  fill: white;
+  font-size: 24px;
+  font-family: 'Merriweather', serif;
+  font-weight: 900;
+}
+h4 {
+  font-family: 'Merriweather', serif;
+  font-size: 24px;
+  text-align: left;
+  color: white;
+}
+.micro‐wrapper {
+  position: sticky;
+  top: 0/* the height of your nav or header, or 0 */
+}
+
+
+.dropdown-container {
     text-transform: uppercase;;
   width: 500px;
   font-family: jaro;
@@ -237,26 +257,5 @@ line-height: normal;
   .dropdown-option:hover {
     background-color: #222;
   }
-
-/* //charts */
-.axis-label {
-text-transform: capitalize;
-  fill: white;
-  font-size: 24px;
-  font-family: 'Merriweather', serif;
-  font-weight: 900;
-}
-h4 {
-  font-family: 'Merriweather', serif;
-  font-size: 24px;
-  text-align: left;
-  color: white;
-}
-.micro‐wrapper {
-  position: sticky;
-  top: 0/* the height of your nav or header, or 0 */
-}
-
-
   </style>
   

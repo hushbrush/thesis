@@ -1,9 +1,13 @@
 <template>
+  <div class= "everything_container">
+  <h2> Compare Characters across Epics:</h2>
     <div class="compare-container">
+      
       <div class="col">
-        <h3>Epic A</h3>
+       
         <EpicComparer 
           :items="items" 
+          side="left"
           @hover-quote="setCenterQuote"
         />
       </div>
@@ -16,13 +20,15 @@
       </div>
   
       <div class="col">
-        <h3>Epic B</h3>
+        
         <EpicComparer 
           :items="items" 
+          side="right"
           @hover-quote="setCenterQuote"
         />
       </div>
     </div>
+  </div>
   </template>
   
   <script>
@@ -51,7 +57,12 @@
   </script>
   
   <style scoped>
+  h2{
+    font-size: 60px;
+    padding-bottom: 2rem;
+  }
   .compare-container {
+    background: #000;
     display: grid;
     grid-template-columns: 1fr 300px 1fr;
     gap: 1rem;
@@ -59,22 +70,32 @@
   }
   .center-box {
     position: sticky;
-    top: 1rem;
-    background: #111;
+    top: 4rem;
+    background: #fff;
     border: 2px solid #444;
     border-radius: 8px;
     padding: 1rem;
-    height: 100%;
-    overflow-y: auto;
-    color: #fff;
+    color: #000;
+    height: 50%;
+    margin-top: 75%;
+
+
   }
+
+ 
   .placeholder {
     opacity: 0.6;
     font-style: italic;
   }
   .col {
-    overflow-y: auto;
-    max-height: 90vh;
+    max-height: none;
+    
   }
+ .everything_container{
+ background: #000;
+ margin-top: 2rem;
+ padding: 2rem;
+
+ }
   </style>
   
