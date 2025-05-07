@@ -5,6 +5,8 @@
   >
     <svg ref="svg"></svg>
     <div
+     
+      v-if="showIcon"
       ref="iconContainer"
       class="['icon-container', { mirror: side==='left' }]"
       :style="iconStyle"
@@ -20,7 +22,8 @@ export default {
   props: {
     item:   { type: Object, required: true },
     height: { type: Number, default: 20 },
-    side:   { type: String, default: 'left' }
+    side:   { type: String, default: 'left' },
+    showIcon: { type: Boolean, default: true }
   },
   computed: {
     silhouetteUrl() {
@@ -70,7 +73,7 @@ export default {
     quotes_n_loc.forEach(([quoteText, loc]) => {
       if (!quoteText) return;
       const x = (loc / textLength) * width;
-      const w = (quoteText.length / textLength) * width;
+      const w = (quoteText.length / textLength) * width+10;
       svg.append('rect')
         .attr('x', x).attr('y', 0)
         .attr('width', w).attr('height', height)

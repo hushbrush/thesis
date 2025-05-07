@@ -99,7 +99,7 @@ computed: {
 position: absolute;
 inset: 0;
 padding: 40px;
-font-family: 'Merriweather', serif;
+font-family: 'Jura', sans-serif;
 font-size: 18px;
 line-height: 1.7;
 z-index: 1;

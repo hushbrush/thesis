@@ -40,7 +40,7 @@ export default {
           const archetypeIndex = this.calculateArchetype(this.answers)
           this.$emit('finished', archetypeIndex)
         }
-      }, 1500)
+      }, 0)
     },
     calculateArchetype(answers) {
       const counts = Array(7).fill(0)

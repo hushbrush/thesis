@@ -2,28 +2,39 @@
   <div class="app">
     <div class="sections-wrapper" ref="wrapper">
       
-         <!-- SECTION 1: Landing / Quiz -->
-   <section v-if="currentStep === 'landing' || currentStep === 'quiz'" class="section snap">
-     <landing-page
-       :showQuiz="currentStep === 'quiz'"
-       @start-quiz="startQuiz"
-       @open-modal="showModal = true"
-     />
-     <quiz-flow
-       v-if="currentStep === 'quiz'"
-       :questions="questions"
-       @finished="showResult"
-     />
-   </section>
+      <transition name="fade" mode="out-in">
+  <!-- quiz (landing+quiz) -->
+  <section
+    v-if="currentStep === 'landing' || currentStep === 'quiz'"
+    key="quiz"
+    class="section snap"
+  >
+    <landing-page
+      :showQuiz="currentStep === 'quiz'"
+      @start-quiz="startQuiz"
+      @open-modal="showModal = true"
+    />
+    <quiz-flow
+      v-if="currentStep === 'quiz'"
+      :questions="questions"
+      @finished="showResult"
+    />
+  </section>
 
-   <!-- SECTION 2: Result reveal -->
-   <section v-if="currentStep === 'result'" class="section snap">
-     <result-reveal
-       :archetypeIndex="archetypeIndex"
-       @continue="showCluster"
-       @restart-quiz="restartQuiz"
-     />
-   </section>
+  <!-- result -->
+  <section
+    v-else-if="currentStep === 'result'"
+    key="result"
+    class="section snap"
+  >
+    <result-reveal
+      :archetypeIndex="archetypeIndex"
+      @continue="showCluster"
+      @restart-quiz="restartQuiz"
+    />
+  </section>
+</transition>
+
       <!-- SECTION 3: ScrollStage (you were missing this) -->
    <section
      v-if="currentStep === 'chart'"
@@ -54,8 +65,8 @@
         class="section snap compare-scroll"
         style="height: 100vh; overflow-y: auto;"
         @scroll.passive="onCompareScroll"
-        @wheel.passive="onCompareWheel"
-      >
+       
+      >  <!-- @wheel.passive="onCompareWheel" -->
         <CompareEpics :items="nodes" />
       </section>
 
@@ -354,4 +365,25 @@ body {
   }
 
 
+
+/* quiz css */
+
+.fade-enter-active {
+  transition: opacity 0.8s ease-in-out, filter 0.8s ease-in-out;
+}
+.fade-leave-active {
+  transition: opacity 0.8s ease-in-out, filter 0.8s ease-in-out;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  filter: drop-shadow(0 0 0 transparent);
+}
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+  filter:
+    drop-shadow(0 0 8px rgba(219,243,157,0.5))
+    drop-shadow(0 0 16px rgba(253,205,84,0.5));
+}
 </style>

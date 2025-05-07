@@ -1,63 +1,105 @@
 <template>
   <div class="character-card">
-    <div class="selector">
-      <select v-model="selectedName" class="character-select">
-        <option disabled value="">-- Select a Character --</option>
-        <option v-for="char in characters" :key="char.character" :value="char.character">
+
+    <!-- selector always on top -->
+     <!-- <div
+          :class="[
+            'dropdown-container',
+            side === 'right' ? 'align-right' : 'align-left'
+          ]"
+        >
+      <div @click="toggleDropdown" class="dropdown-label-wrapper">
+        <span class="dropdown-label" :style="{ color: selectedColor }">
+          {{ selectedTitle || 'Select Text' }}
+        </span>
+        <span class="dropdown-arrow" :style="{ color: selectedColor }">▽</span>
+      </div>
+      <div v-if="showDropdown" class="dropdown-options">
+        <div
+          class="dropdown-option"
+          v-for="(title, idx) in uniqueTitles"
+          :key="idx"
+          @click="selectTitle(title)"
+        >
+          {{ title }}
+        </div>
+      </div> -->
+    <div class="'dropdown-container',">
+      <select
+        v-model="selectedName"
+        class="character-select"
+      >
+        <option disabled value="">Select a Character</option>
+        <option
+          v-for="char in characters"
+          :key="char.character"
+          :value="char.character"
+        >
           {{ char.character }}
         </option>
       </select>
     </div>
 
+    <!-- card-content is one flex container with two columns -->
     <div v-if="selectedCharacter" class="card-content">
+
+      <!-- LEFT column: basics + role + hover hint -->
       <div class="left-column">
-        <div class ="basics">
+        <div class="basics">
           <p class="quote">{{ randomQuote }}</p>
+          <p class="bio">{{ selectedCharacter.bio }}</p>
+          <p class="book-info">
+            <em>{{ selectedCharacter.title }}</em><br>
+            Translated by {{ selectedCharacter.translator }}<br>
+            Read more
+            <a :href="`https://en.wikipedia.org/wiki/${selectedCharacter.character}`" target="_blank">here</a>
+            or read the book
+            <a :href="selectedCharacter.download_link" target="_blank">here</a>
+          </p>
+          <div class="bar-title">
+            What she said vs what others said about her
+          </div>
+          <div class="bar-wrapper">
+            <div
+              class="bar-self"
+              :style="{ width: `${Math.min(selectedCharacter.saidvsabout * 100, 100)}%` }"
+            ></div>
+            <div
+              class="bar-others"
+              :style="{ width: `${Math.max(100 - selectedCharacter.saidvsabout * 100, 0)}%` }"
+            ></div>
+          </div>
+        </div> <!-- /.basics -->
 
-
-        <p class="bio">
-          {{ selectedCharacter.bio }}
-        </p>
-
-        <p class="book-info">
-          <em>{{ selectedCharacter.title }}</em><br>
-          Translated by {{ selectedCharacter.translator }}
-          <br>Read more 
-          <a :href="`https://en.wikipedia.org/wiki/${selectedCharacter.character}`" target="_blank">here</a>
-          or read the book
-          <a :href="selectedCharacter.download_link" target="_blank">here</a>
-        </p>
-
-      
-
-        <div class="bar-title">What she said vs what others said about her</div>
-        <div class="bar-wrapper">
-          <div
-            class="bar-self"
-            :style="{ width: `${Math.min(selectedCharacter.saidvsabout * 100, 100)}%` }"
-          ></div>
-          <div
-            class="bar-others"
-            :style="{ width: `${Math.max(100 - selectedCharacter.saidvsabout * 100, 0)}%` }"
-          ></div>
-        </div>
-      </div>
         <div class="role-section">
-        <div class="role-title">{{ selectedCharacter.character }}'s Role:</div>
-        <div class="role-bar">
-        </div>
-          <!-- <div v-for="n in 30" :key="n" class="bar" :style="{ height: `${Math.random() * 40 + 20}px` }"></div> -->
-        </div>
+          <div class="role-title">
+            {{ selectedCharacter.character }}'s Role:
+          </div>
 
-        <p class="hover-hint">Hover on the bars to see the text in context of {{ selectedCharacter.character }}</p>
-      </div>
+          <text-bar
+            class="role-bar-chart"
+            :item="selectedCharacter"
+            :height="40"
+            side="left"
+            @hover-quote="onBarHover"
+            :show-icon="false"
+          />
 
+          <p class="hover-hint">
+            {{ hoverText ||
+               `Hover on the bars to see the text in context of ${selectedCharacter.character}` }}
+          </p>
+        </div>
+      </div> <!-- /.left-column -->
+
+      <!-- RIGHT column: silhouette + meta -->
       <div class="right-column">
         <div class="card-head">
           <div class="silhouette">
-            <img :src="silhouetteSelector(selectedCharacter.archetype)" alt="Character silhouette" />
-           
-
+            <img
+              :src="silhouetteSelector(selectedCharacter.archetype)"
+              alt="Character silhouette"
+            />
           </div>
           <div
             class="archetype-label"
@@ -65,23 +107,31 @@
           >
             {{ archetypeName(selectedCharacter.archetype) }}
           </div>
-          
           <p class="timeline-date">~ {{ selectedCharacter.original_date }}</p>
         </div>
-      </div>
-    </div>
-  </div>
+      </div> <!-- /.right-column -->
+
+    </div> <!-- /.card-content -->
+
+  </div> <!-- /.character-card -->
 </template>
+
 
 <script>
 import data from '@/assets/data.json'
+import TextBar from './textBar.vue'
 
 export default {
   name: 'CharacterCard',
+  components: {
+    TextBar,      // ← add this
+  },
+  
   data() {
     return {
       selectedName: '',
-      characters: data
+      characters: data,
+      hoverText:    '' 
     }
   },
   computed: {
@@ -96,8 +146,17 @@ export default {
   randomQuote() {
     const q = this.filteredQuotes
     return q.length ? q[Math.floor(Math.random() * q.length)] : 'No quote available.'
-  }
-,
+  },
+  dropdownStyle() {
+      if (!this.selectedCharacter) return {}
+      // pull the hex from your clusterMeta helper
+      const color = this.archetypeColor(this.selectedCharacter.archetype)
+      return {
+        backgroundColor: '#000' ,    // fill
+        borderColor:     color,    // stroke
+        color:            color  // text (or pick black if your archetype color is light)
+      }
+    },
 
     clusterMeta() {
       return this.$clusterMeta
@@ -110,6 +169,9 @@ export default {
     mounted() {
   console.log('[CharacterCard] mounted; selectedName=', this.selectedName);
 },
+onBarHover(text) {
+      this.hoverText = text
+    },
     archetypeName(index) {
       return this.clusterMeta[index]?.name || 'Unknown'
     },
@@ -138,13 +200,13 @@ export default {
 <style scoped>
 .character-card {
   min-height: 100vh;
-  width: 100%;
+  width: auto;
   max-width: 100vw;
   overflow-x: hidden;
   overflow-y: auto;
-  background: #fff;
-  color: #000;
-  font-family: 'jaro', serif;
+  background: #000000;
+  color: #ffffff;
+  font-family: 'Jaro';
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -168,14 +230,14 @@ export default {
 }
 
 .left-column {
-  font-family: Merriweather;
+  font-family: Jura;
   flex: 2;
   text-align: left;
 }
 
 .right-column {
   flex: 1;
-  border: 0.5px solid #000000;
+  border: 0.5px solid #ffffff;
   margin: 1.5rem;
   border-radius: 20px;
   text-align: center;
@@ -187,13 +249,12 @@ export default {
 }
 .character-select {
   width: 60%;
- 
   font-family: Jaro;
   font-size: 78px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
-  border: 0.5px solid #000000;
+  border: 0.5px solid #ffffff;
   padding: 0.4rem 1rem;
   border-radius: 12px;
   letter-spacing: 2px;
@@ -203,11 +264,12 @@ export default {
   -moz-appearance: none;
   text-align: left;
   cursor: pointer;
+  fill: #000
 }
 .name {
   
  
-  border: 0.5px solid #000000;
+  border: 0.5px solid #ffffff;
   display: inline-block;
   padding: 0.4rem 1rem;
   border-radius: 12px;
@@ -215,8 +277,8 @@ export default {
 
 .quote {
   padding-top: 40px;
-  color: #000;
-font-family: Merriweather;
+  color: #ffffff;
+font-family: Jura;
 font-size: 30px;
 font-style: normal;
 font-weight: 700;
@@ -224,18 +286,18 @@ line-height: normal;
 }
 
 .bio {
-  color: #000;
-font-family: Merriweather;
+  color: #ffffff;
+font-family: Jura;
 font-size: 20px;
 font-style: normal;
 font-weight: 400;
 line-height: normal;
 }
 .href {
-  color: #000;}
+  color: #ffffff;}
 .book-info {
-  color: #000;
-font-family: Merriweather;
+  color: #ffffff;
+font-family: Jura;
 font-size: 16px;
 font-style: italic;
 font-weight: 400;
@@ -250,7 +312,7 @@ line-height: normal;
 .bar-title {
   margin-top: 2rem;
   color: #8A8A8A;
-font-family: Merriweather;
+font-family: Jura;
 font-size: 20px;
 font-style: normal;
 font-weight: 700;
@@ -268,12 +330,12 @@ line-height: normal;
 
 .bar-self {
 
-  background-color: #000000;
+  background-color: #ffffff;
   transition: width 0.5s ease;
 }
 
 .bar-others {
-  background-color: #dedede;
+  background-color: #7b7b7b;
   transition: width 0.5s ease;
 }
 .role-section{
@@ -284,7 +346,7 @@ line-height: normal;
   gap: 4px;
  margin-bottom: 1.5rem;
   color: #8A8A8A;
-font-family: Merriweather;
+font-family: Jura;
 font-size: 26px;
 font-style: normal;
 font-weight: 700;
@@ -298,11 +360,11 @@ line-height: normal;
 
 .hover-hint {
   font-size: 0.9rem;
-  font-style: italic;
   opacity: 0.8;
-  border: 0.5px solid #000000;
+  border: 0.5px solid #ffffff;
   padding: 0.5rem;
   border-radius: 12px;
+  margin: 1rem;
 }
 
 .card-head .silhouette {
@@ -321,11 +383,11 @@ line-height: normal;
   height: auto;
   object-fit: contain; /* ensures it stays proportional */
   display: block;
-  color:  #000000;
+  color:  #ffffff;
 }
 
 .bar-fill {
-  background: #000000;
+  background: #ffffff;
   width: 100%;
   height: 50%;
   position: absolute;
@@ -345,7 +407,7 @@ line-height: normal;
 
 .archetype-label {
   font-weight: bold;
-  color: #000000;
+  color: #ffffff;
   margin-top: 1rem;
   font-size: 3rem;
 }
@@ -360,4 +422,68 @@ line-height: normal;
   font-size: 0.8rem;
   opacity: 0.6;
 }
+
+.role-bar-chart svg {
+  /* the white background + colored segments are already drawn by text-bar */
+  /* but if you want to shrink it, you can override: */
+  max-height: 40px;
+}
+
+.role-bar-chart .icon-container {
+  display: none;
+}
+
+
+/* drop down */
+
+
+/* Dropdown styles */
+.dropdown-container {
+  text-transform: uppercase;
+  width: 100%;
+  max-width: 500px;
+  font-family: jaro;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(251, 251, 251, 0.5);
+  font-size: 36px;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+.dropdown-label-wrapper {
+  display: flex;
+  align-items: center;
+  width: 90%;
+  justify-content: space-between;
+}
+.dropdown-options {
+  width: 100%;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #444;
+  color: white;
+  margin-top: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  z-index: 10;
+}
+.dropdown-option {
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+.dropdown-option:hover {
+  background-color: #222;
+}
+.dropdown-arrow {
+  margin-left: 0.5rem;
+  align-items: center;
+  display: flex;
+}
+
+
 </style>

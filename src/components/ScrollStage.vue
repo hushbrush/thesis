@@ -7,7 +7,8 @@
       <div class="step" data-step="0"></div>
       <div class="step" data-step="1"></div>
       <div class="step" data-step="2"></div>
-      <div class="step" data-step="3" style="height: 120vh;">Scroll down to continue...</div>
+      <div class="step" data-step="3"></div>
+      <div class="step" data-step="4" style="height: 120vh;">Scroll down to continue...</div>
     </div>
 <!-- extra space to scroll into next section -->
 <div style="height: 100vh;"></div>
@@ -38,7 +39,9 @@ export default {
       currentStep: 0,
       svg: null,
       simulation: null,
-      node: null
+      node: null,
+      hoveredNode: null
+
     }
   },
 
@@ -70,33 +73,77 @@ export default {
     },
 
     createLabels() {
-      const centers = computeClusterCentersBySize(this.nodes, this.width*6/7, this.height, 220)
-      this.svg.selectAll('.cluster-label').remove()
+  const centers = computeClusterCentersBySize(
+    this.nodes,
+    this.width * 6 / 7,
+    this.height,
+    220
+  );
+  // remove old labels
+  this.svg.selectAll('.cluster-label').remove();
 
-      this.svg.selectAll('text.cluster-label')
-        .data(centers)
-        .enter()
-        .append('text')
-        .attr('class', 'cluster-label')
-        .attr('x', d => d.x)
-        .attr('y', d => d.y - 200)
-        .attr('text-anchor', 'middle')
-        .attr('fill', (d, i) => this.$clusterMeta[i]?.color || 'white')
-        .attr('font-size', 28)
-        .attr('font-family', 'jaro')
-        .text((d, i) => this.$clusterMeta[i]?.name)
+  // capture metadata and line-height for wrapping
+  const clusterMeta = this.$clusterMeta;
+  const lineHeight = 1.1; // em units
 
-        this.svg.selectAll('image.silhouette')
-          .data(centers)
-          .enter()
-          .append('image')
-          .attr('class', 'silhouette')  
-          .attr('href', (d, i) => new URL(`/src/assets/silhouettes/${i}.svg`, import.meta.url).href)
-          .attr('x', d => d.x - 150)
-          .attr('y', d => d.y - 150)
-          .attr('width', 300)
-          .attr('height', 100)
-    },
+  // add new labels
+  this.svg
+    .selectAll('text.cluster-label')
+    .data(centers)
+    .enter()
+    .append('text')
+    .attr('class', 'cluster-label')
+    .attr('x', (d) => d.x)
+    .attr('y', (d) => d.y - 300)
+    .attr('text-anchor', 'middle')
+    .attr('fill', (d, i) => clusterMeta[i]?.color || 'white')
+    .attr('font-size', 36)
+    .attr('font-family', 'jaro')
+    .each(function (d, i) {
+      const name = (clusterMeta[i]?.name || '').trim();
+      const words = name.split(/\s+/);
+      const textElem = d3.select(this);
+
+      if (words.length > 1) {
+        // multi-word: split into tspans and vertically center
+        words.forEach((word, idx) => {
+          textElem
+            .append('tspan')
+            .attr('x', d.x)
+            .attr(
+              'dy',
+              idx === 0
+                ? `${-((words.length - 1) / 2) * lineHeight}em`
+                : `${lineHeight}em`
+            )
+            .text(word);
+        });
+      } else {
+        // single word: just set text
+        textElem.text(name);
+      }
+    });
+
+  // add silhouettes
+  this.svg
+    .selectAll('image.silhouette')
+    .data(centers)
+    .enter()
+    .append('image')
+    .attr('class', 'silhouette')
+    .attr(
+      'href',
+      (d, i) => new URL(
+        `/src/assets/silhouettes/${i}.svg`,
+        import.meta.url
+      ).href
+    )
+    .attr('x', (d) => d.x - 150)
+    .attr('y', (d) => d.y - 250)
+    .attr('width', 300)
+    .attr('height', 100);
+},
+
 
     createNodes() {
       this.node = this.svg.selectAll('circle')
@@ -106,6 +153,8 @@ export default {
         .attr('r', 10)
         .attr('fill', d => this.$clusterMeta[d.archetype]?.color || 'white')
         .attr('opacity', 0.9)
+
+      
     },
 
     bindTooltip() {
@@ -158,21 +207,159 @@ export default {
 
         })
     },
+    drawNameBoxes() {
+  const centers = computeClusterCentersBySize(
+    this.nodes,
+    this.width * 6/7,
+    this.height,
+    220
+  );
+  // redraw your silhouettes & labels on top
+  this.createLabels();
+
+  // hide the circles until step 1
+  this.svg.selectAll('circle').attr('display','none');
+  // clear old boxes
+  this.svg.selectAll('.name-item').remove();
+
+  const estimateWidth = txt => txt.length * 14 + 16;
+  const boxH        = 35;    // height of each name‐box
+  const yOffset     = 250;  // how far below the silhouette they start
+
+  // build one <g> per character
+  const items = this.svg.selectAll('g.name-item')
+    .data(this.nodes, d => d.character)
+    .enter()
+    .append('g')
+      .attr('class', 'name-item')
+      .attr('opacity', 0);
+
+  // black fill + colored stroke, rounded corners
+  items.append('rect')
+    .attr('width',  d => estimateWidth(d.character))
+    .attr('height', boxH)
+    .attr('rx',      10)                           // <-- corner radius
+    .attr('ry',      10)                           // <-- corner radius
+    .attr('fill',    'black')
+    .attr('stroke',  d => this.$clusterMeta[d.archetype].color)
+    .attr('stroke-width', 1);
+
+  // white text, colored fill
+  items.append('text')
+    .attr('x',         d => estimateWidth(d.character)/2)
+    .attr('y',        boxH - 8)
+    .attr('font-size',28)
+    .attr('font-family','Jaro')
+    .attr('fill',     d => this.$clusterMeta[d.archetype].color)
+    .attr('text-anchor', 'middle')
+    .text(d => d.character);
+
+  // fade the boxes in
+  items.transition().duration(100).attr('opacity', 1);
+
+  items
+  .on('mouseover', (event, d) => {
+    this.hoveredNode = d
+
+    d3.select(event.currentTarget)
+      .raise()
+      .transition().duration(200)
+      .attr('transform', `translate(${d.x-10},${d.y-10}) scale(2)`)
+
+    this.nameSim
+      .force('collision', d3.forceCollide(n => n === this.hoveredNode ? 60 : boxH / 2 + 10))
+      .alpha(0.002)
+      .restart()
+  })
+  .on('mouseout', (event, d) => {
+    this.hoveredNode = null
+
+    d3.select(event.currentTarget)
+      .transition().duration(200)
+      .attr('transform', `translate(${d.x},${d.y}) scale(1)`)
+
+    this.nameSim
+      .force('collision', d3.forceCollide(boxH / 2 + 10))
+      .alpha(0.002)
+      .restart()
+  })
+
+
+
+  // seed every node right under its silhouette
+  this.nodes.forEach(d => {
+    d.x = centers[d.archetype].x;
+    d.y = centers[d.archetype].y + yOffset;
+  });
+
+  // tear down any old sim
+  if (this.nameSim) this.nameSim.stop();
+
+  // brand‐new mini‐simulation:
+  this.nameSim = d3.forceSimulation(this.nodes)
+    .force('x', d3.forceX(d => centers[d.archetype].x).strength(1.5))
+    // *weaker* y‐pull so collisions spread them vertically
+    .force('y', d3.forceY(d => centers[d.archetype].y + yOffset-95).strength(0.6))
+    // padding = half box‐height + 10px → you’ll get ~3× more vertical room
+    .force('collision', d3.forceCollide(boxH/2 + 10))
+    .alpha(1).alphaDecay(0.05)
+    .on('tick', () => {
+      items.attr('transform', d => `translate(${d.x}, ${d.y}) scale(${this.hoveredNode === d ? 1.5 : 1})`)      ;
+    });
+},
+
 
     updateLayout(index) {
-      this.svg.selectAll('.cluster-label').remove()
-      this.svg.selectAll('.timeline-line, .timeline-text, .uncertainty').remove()
-      this.svg.selectAll('image.silhouette')
-      .style('display', index === 0 ? 'block' : 'none')
+        // wipe out any old labels / boxes / timeline
+        this.svg.selectAll(
+          '.cluster-label, .timeline-line, .timeline-text, .uncertainty, .silhouette, .name-box, .name-text'
+        ).remove();
 
-      if (index === 0) this.drawClusterLayout()
-      if (index === 1) this.drawMapLayout()
-      if (index === 2) this.drawTimelineLayout()
-    },
+        // now branch on the new step numbering
+        if (index === 0) {
+          this.drawNameBoxes();                // NEW!
+        }
+        // step 1: morph into your circles
+        else if (index === 1) {
+          // grab box‐simulation final positions…
+          // (they’ve been mutating this.nodes[][x,y] already)
+
+          // fade out the boxes if any still linger
+          this.svg.selectAll('g.name-item')
+            .transition().duration(200).attr('opacity', 0)
+            .remove();
+
+          // show circles exactly at the same x,y
+          this.svg.selectAll('circle')
+            .attr('cx', d => d.x)
+            .attr('cy', d => d.y)
+            .attr('display','block');
+
+          // now run your normal cluster simulation
+          this.drawClusterLayout();
+        }
+
+        else if (index === 2) {
+          this.drawMapLayout();
+        }
+        else if (index === 3) {
+          this.drawTimelineLayout();
+        }
+        else if (index === 4) {
+          // your existing “emit reached-end” logic lives in setupScrollama
+        }
+      },
+
 
     drawClusterLayout() {
-      const centers = computeClusterCentersBySize(this.nodes, this.width*6/7, this.height+150, 220)
+      const centers = computeClusterCentersBySize(this.nodes, this.width*6/7, this.height+100, 220)
       this.createLabels()
+
+      this.nodes.forEach(d => {
+        d.x = centers[d.archetype].x;
+        d.y = centers[d.archetype].y;
+      });
+
 
       this.simulation
   .force('x', d3.forceX(d => centers[d.archetype]?.x).strength(0.6))
@@ -224,16 +411,21 @@ export default {
         .attr("x2", xScale(0))
         .attr("y1", 0)
         .attr("y2", this.height)
-        .attr("stroke", "white")
-        .attr("stroke-width", 1)
+        .style("stroke", "white")
+        .style("stroke-width", 8)
+        .style("stroke", "white")
+        
+
 
       this.svg.append("text")
         .attr("class", "timeline-text")
         .attr("x", xScale(0) + 8)
-        .attr("y", 20)
+        .attr("y", 70)
         .text("Birth of Christ")
         .style("fill", "white")
-        .style("font-size", "12px")
+        .style("font-size", "24px")
+        .style("font-family", "jaro")
+        
 
       const stackMap = new Map()
       const spacing = 10
@@ -271,19 +463,21 @@ export default {
 </script>
 
 <style scoped>
-/* .scrolly-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: 100vw;
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
-  background: black;
-  position: relative;
-width: 100%;      
-overflow: visible; /* 
-/* } */
+
+
+#tooltip {
+  max-width: 300px;
+  position: absolute;       /* so left/top take effect */
+  display: none;            /* your JS will toggle this */
+  background: #000000dd;
+  padding: 6px 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  pointer-events: all;     /* don’t steal pointer events */
+  color: white;
+  z-index: 6;           /* on top of everything */
+}
+
 .scrolly-container {
   position: relative;
   overflow: visible;  /* let the parent sections-wrapper scroll */
@@ -304,9 +498,10 @@ overflow: visible; /*
 }
 
 .bg-step-0 { background: black; }
-.bg-step-1 { background-image: url('@/assets/world_map.png'); background-color: black; }
-.bg-step-2 { background: black; }
-
+.bg-step-1 { background: black; }
+.bg-step-2 { background-image: url('@/assets/world_map.png'); background-color: black; }
+.bg-step-3 { background: black; }
+.bg-step-4 { background: black; }
 .graphic {
   position: sticky;
   top: 0;
@@ -315,6 +510,7 @@ overflow: visible; /*
   height: 100vh;
   z-index: 3;
   background: transparent;
+  
 }
 
 .steps {
@@ -354,7 +550,7 @@ overflow: visible; /*
   border-radius: 6px;
   pointer-events: none;
   color: white;
-  z-index: 9999;
+  z-index: 5;
 }
 
 </style>

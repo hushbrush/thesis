@@ -198,14 +198,16 @@ line-height: normal;
 text-transform: capitalize;
   fill: white;
   font-size: 24px;
-  font-family: 'Merriweather', serif;
+  font-family: Jura, serif;
   font-weight: 900;
 }
 h4 {
-  font-family: 'Merriweather', serif;
+  font-family: "Jura", sans-serif;  /* or whatever you’re using */
+  font-weight: 400;
   font-size: 24px;
   text-align: left;
   color: white;
+  margin: 0px;
 }
 .micro‐wrapper {
   position: sticky;

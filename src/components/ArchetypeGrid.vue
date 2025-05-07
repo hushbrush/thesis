@@ -142,6 +142,7 @@ export default {
             .style('font-size', td => td === d.characteristic ? '40px' : null)
             .style('fill',       td => td === d.characteristic ? baseColor : null)
             .style('background', 'rgba(0,0,0,0.5)')
+            .style('rotate', '45deg')
             .style('padding',    '2px');
 
           // **highlight the matching Y‐tick** 
@@ -158,7 +159,9 @@ export default {
         })
         .on('mouseout', () => {
           tooltip.classList.remove('visible');
-          chart.selectAll('rect').style('opacity', 1);
+          chart.selectAll('rect').style('opacity', 1)
+          chart.selectAll('.axis-label-x')
+          .style('rotate', '-45deg');
         });
     }
   },
