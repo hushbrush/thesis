@@ -68,7 +68,7 @@ export default {
     drawInitialNodes() {
       this.createLabels()
       this.createNodes()
-      this.bindTooltip()
+      // this.bindTooltip()
       this.createSimulation()
     },
 
@@ -207,6 +207,62 @@ export default {
 
         })
     },
+    showCharacterTooltip(d, place) {
+  const estimatedWidth = Math.max(
+    d.character.split(/\s+/).reduce((acc, word) => acc + word.length * 14, 0) + 40,
+    280
+  );
+  var distNormaliser = 10;
+      if(place !='nameList'){
+         // Character Name
+      this.svg.append('foreignObject')
+      .attr('class', 'hover-tooltip name')
+      .attr('x', d.x )
+      .attr('y', d.y+distNormaliser)
+      .attr('width', estimatedWidth)
+      .attr('height', 140)
+      .append('xhtml:div')
+        .style('background', 'black')
+        .style('border', `2px solid ${this.$clusterMeta[d.archetype].color}`)
+        .style('border-radius', '15px')
+        .style('text-align', 'center')
+        .style('padding', '4px')
+        .style('font-family', 'Jaro')
+        .style('color', this.$clusterMeta[d.archetype].color)
+        .style('font-size', '40px')
+        .text(d.character);
+      }
+ 
+
+  // Bio Tooltip
+  this.svg.append('foreignObject')
+    .attr('class', 'hover-tooltip bio')
+    .attr('x', d.x -estimatedWidth/2)
+    .attr('y', d.y +distNormaliser*10)
+    .attr('width', estimatedWidth * 2)
+    .attr('height', 300)
+    .append('xhtml:div')
+      .style('min-width', '280px')
+      .style('background', 'black')
+      .style('border', `2px solid ${this.$clusterMeta[d.archetype].color}`)
+      .style('border-radius', '15px')
+      .style('padding', '14px')
+      .style('font-family', 'Jura, sans-serif')
+      .style('color', this.$clusterMeta[d.archetype].color)
+      .style('font-size', '18px')
+      .style('line-height', '1.4')
+      .style('white-space', 'normal')
+      .html(`
+        <div style="margin-top: 8px;">${d.bio || ''}</div>
+        <div style="margin-top: 12px;">${d.title || 'Unknown'}</div>
+        <div style="margin-top: 4px;">Translated by ${d.translator || 'Unknown'}</div>
+      `);
+},
+
+    clearCharacterTooltip() {
+      this.svg.selectAll('.hover-tooltip').remove();
+    },
+
     drawNameBoxes() {
   const centers = computeClusterCentersBySize(
     this.nodes,
@@ -222,9 +278,20 @@ export default {
   // clear old boxes
   this.svg.selectAll('.name-item').remove();
 
-  const estimateWidth = txt => txt.length * 14 + 16;
+  const estimateWidth = txt => {
+  const words = txt.split(/\s+/)
+  if (words.length > 1) {
+    // add extra space between words and pad more generously
+    return words.reduce((acc, word) => acc + word.length * 14, 0) + (words.length - 1) * 18 + 40
+  } else {
+    // single word — the original logic with a tiny bump
+    return txt.length * 15 + 24
+  }
+}
+
+
   const boxH        = 35;    // height of each name‐box
-  const yOffset     = 250;  // how far below the silhouette they start
+  const yOffset     = 240;  // how far below the silhouette they start
 
   // build one <g> per character
   const items = this.svg.selectAll('g.name-item')
@@ -248,7 +315,7 @@ export default {
   items.append('text')
     .attr('x',         d => estimateWidth(d.character)/2)
     .attr('y',        boxH - 8)
-    .attr('font-size',28)
+    .attr('font-size', 28)
     .attr('font-family','Jaro')
     .attr('fill',     d => this.$clusterMeta[d.archetype].color)
     .attr('text-anchor', 'middle')
@@ -260,29 +327,34 @@ export default {
   items
   .on('mouseover', (event, d) => {
     this.hoveredNode = d
+    d3.select(event.currentTarget).raise().transition().duration(200)
+      .attr('transform', `translate(${d.x - 10},${d.y - 10}) scale(2)`)
 
-    d3.select(event.currentTarget)
-      .raise()
-      .transition().duration(200)
-      .attr('transform', `translate(${d.x-10},${d.y-10}) scale(2)`)
-
-    this.nameSim
-      .force('collision', d3.forceCollide(n => n === this.hoveredNode ? 60 : boxH / 2 + 10))
-      .alpha(0.002)
-      .restart()
-  })
-  .on('mouseout', (event, d) => {
-    this.hoveredNode = null
-
-    d3.select(event.currentTarget)
-      .transition().duration(200)
-      .attr('transform', `translate(${d.x},${d.y}) scale(1)`)
+    this.showCharacterTooltip(d, 'nameList')
 
     this.nameSim
-      .force('collision', d3.forceCollide(boxH / 2 + 10))
-      .alpha(0.002)
-      .restart()
-  })
+    .force('collision', d3.forceCollide(n => n === this.hoveredNode ? 60 : boxH / 2 + 10))
+    .alpha(0.002)
+    .restart()
+
+})
+.on('mouseout', (event, d) => {
+  this.clearCharacterTooltip()
+
+d3.select(event.currentTarget)
+  .transition().duration(200)
+  .attr('transform', `translate(${d.x}, ${d.y}) scale(1)`)
+
+
+
+
+this.nameSim
+  .force('collision', d3.forceCollide(boxH / 2 + 10))
+  .alpha(0.002)
+  .restart()
+
+})
+
 
 
 
@@ -368,6 +440,49 @@ export default {
   .alphaDecay(0.03)
   .velocityDecay(0.5)
   .restart()
+  
+  this.nodesSettled = false;
+setTimeout(() => {
+  this.nodesSettled = true;
+}, 800); // give it time to settle, tweak as needed
+
+
+      // Create hoverable behavior for circles
+this.node = this.svg.selectAll('circle')
+  .data(this.nodes, d => d.character)
+  .join('circle')
+  .attr('r', 10)
+  .attr('fill', d => this.$clusterMeta[d.archetype]?.color || 'white')
+  .attr('opacity', 0.9)
+  .on('mouseover', (event, d) => {
+    this.hoveredNode = d
+
+    d3.select(event.currentTarget)
+      .raise()
+      .transition().duration(200)
+      .attr('r', 16)
+
+    this.showCharacterTooltip(d, 'cluster')
+
+    this.simulation
+      .force('collision', d3.forceCollide(n => n === d ? 30 : 10))
+      .alpha(0.03)
+      .restart()
+  })
+  .on('mouseout', (event, d) => {
+    this.hoveredNode = null
+
+    d3.select(event.currentTarget)
+      .transition().duration(200)
+      .attr('r', 10)
+
+    this.svg.selectAll('.hover-tooltip').remove()
+
+    this.simulation
+      .force('collision', d3.forceCollide(10))
+      .alpha(0.03)
+      .restart()
+  })
 
 
 
@@ -386,7 +501,6 @@ export default {
   .alphaDecay(0.05)     // SLOW decay — longer visible motion
   .velocityDecay(0.5)   // floatier movement, not snappy
   .restart()
-
 
 
       
