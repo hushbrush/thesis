@@ -1,7 +1,9 @@
 <template>
+   <p class =hoverDetails>Hover to see details </p>
   <div class="viz-container">
     <svg ref="chart" :width="chartWidth" :height="chartHeight"></svg>
   </div>
+ 
 </template>
 
 <script>
@@ -33,6 +35,12 @@ export default {
       const b = bigint & 255;
       return `${r}, ${g}, ${b}`;
     },
+    titleCase(str) {
+    return str
+      .split(' ')
+      .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .join(' ');
+  },
 
     setFilteredData() {
       if (this.selectedArchetype == null) {
@@ -108,6 +116,7 @@ export default {
         .call(d3.axisBottom(xScale))
         .selectAll("text")
           .attr('class', 'axis-label-x')
+          .text(t => this.titleCase(t))  
           .attr("transform", "rotate(-45)")
           .style("text-anchor", "end");
 
@@ -117,20 +126,17 @@ export default {
         .selectAll("text")
           .attr('class', 'axis-label-y');
 
-      // tooltip behavior
-      const tooltip = document.getElementById('tooltip');
+      // tooltip: I'm pretty sure this wasnt working atm so  will have to come back to this in the end. 
+      // const tooltip = document.getElementById('tooltip');
+
+
+
       // grab the base color for the selected archetype
       const baseColor = this.clusterMeta[this.selectedArchetype]?.color || 'white';
 
       chart.selectAll('rect')
         .on('mouseover', (event, d) => {
-          tooltip.classList.add('visible');
-          tooltip.innerHTML = `
-            <div style="font-weight:bold;font-size:20px;margin-bottom:6px;">
-              ${d.character}: ${(d.value*100).toFixed(0)}% ${d.characteristic}
-            </div>
-            <div style="font-size:14px;">${d.bio}</div>
-            <div style="font-style:italic;font-size:14px;">${d.title}</div>`;
+          
           chart.selectAll('rect').style('opacity', 0.2);
           chart.selectAll('rect')
             .filter(d2 =>
@@ -138,30 +144,36 @@ export default {
               d2.characteristic === d.characteristic
             )
             .style('opacity', 1);
-            chart.selectAll('.axis-label-x')
-            .style('font-size', td => td === d.characteristic ? '40px' : null)
-            .style('fill',       td => td === d.characteristic ? baseColor : null)
-            .style('background', 'rgba(0,0,0,0.5)')
-            .style('rotate', '45deg')
-            .style('padding',    '2px');
 
-          // **highlight the matching Y‐tick** 
-          chart.selectAll('.axis-label-y')
-            .style('font-size', td => td === d.character    ? '40px' : null)
-            .style('fill',       td => td === d.character    ? baseColor : null)
-            .style('background', 'rgba(0,0,0,0.5)')
-            .style('padding',    '2px')
-            .style('z-index', 1000);
-        })
-        .on('mousemove', event => {
-          tooltip.style.left = `${event.pageX + 12}px`;
-          tooltip.style.top  = `${event.pageY - 30}px`;
+      
+           // 1) Compute avg for this characteristic:
+          const avg = d3.mean(this.filteredData, row => {
+            const cm = new Map(row.characteristics);
+            return cm.get(d.characteristic) || 0;
+          });
+
+          // 2) Update the <p> with hovered + average:
+          d3.select('.hoverDetails')
+          .html(
+                `<span class="hover-characteristic">` +
+                  `${this.titleCase(d.characteristic)}:` +
+                `</span><br/>` +
+                `${d.character}: ${(d.value * 100).toFixed(0)}%<br/>` +
+                `Archetype Avg: ${(avg * 100).toFixed(0)}%`
+              )
+              .style('color', baseColor)
+              .style('font-size', '28px')
+          
         })
         .on('mouseout', () => {
-          tooltip.classList.remove('visible');
+          
           chart.selectAll('rect').style('opacity', 1)
-          chart.selectAll('.axis-label-x')
-          .style('rotate', '-45deg');
+          d3.select('.hoverDetails')
+            .text('Hover to see details')
+            .style('color', 'white')
+            .style('font-size', '28px')
+            .style('opacity', 1);
+
         });
     }
   },
@@ -189,10 +201,43 @@ export default {
 .viz-container {
   background: black;
   color: white;
-  padding: 2rem;
+  padding: 0, 2rem;
 }
 .axis-label-x {
   font-size: 20px;
   fill: white;
+}
+p{
+  color: white;
+  font-size: 28px;
+  font-family: 'Jaro';
+  text-align: left;
+}
+.hoverDetails{
+  height: 80px; 
+  fill: white;
+  margin: 0px;
+  white-space: pre-line;
+  line-height: 95%;
+  padding-top: 0.5rem;
+  /* padding-bottom: 8rem; */
+}
+
+.hoverDetails ::v-deep .hover-characteristic  {
+  display: inline-block;
+  font-size: 28px;       
+  font-weight: bold;
+  text-transform: uppercase; 
+  margin-bottom: 1px;
+  /* -webkit-text-stroke-width: 1.5px;
+  -webkit-text-stroke-color: white; */
+  color: white;
+  letter-spacing: 1.5;
+ 
+}
+.hoverDetails p,
+.hoverDetails .hover-characteristic {
+  margin: 0;
+  padding: 0;
 }
 </style>

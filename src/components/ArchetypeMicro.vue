@@ -160,7 +160,8 @@
     
   }
   h2{
-    margin: 0px;
+    margin-top: 20px;
+    margin-bottom: 0px;
     text-align: left;
     color: #000;
     -webkit-text-stroke-width: 2px;
@@ -170,6 +171,7 @@
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+
   }
   .specialText
   {

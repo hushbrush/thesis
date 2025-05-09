@@ -1,15 +1,23 @@
 <template>
   <div class="scrolly-container">
     <div class="background-layer" :class="'bg-step-' + currentStep"></div>
-    <div class="graphic" ref="chart"></div>
+    <div class="graphic" ref="chart">
+      <!-- <div
+     v-if="currentStep === 3"
+     class="legend-container"
+     ref="legend"
+   ></div> -->
+    </div>
 
     <div class="steps">
       <div class="step" data-step="0"></div>
       <div class="step" data-step="1"></div>
       <div class="step" data-step="2"></div>
       <div class="step" data-step="3"></div>
-      <div class="step" data-step="4" style="height: 120vh;">Scroll down to continue...</div>
+      <div class="step" data-step="4" style="height: 120vh;"></div>
+     
     </div>
+   
 <!-- extra space to scroll into next section -->
 <div style="height: 100vh;"></div>
 
@@ -193,12 +201,12 @@ export default {
 
     setupScrollama() {
       const scroller = scrollama()
-      scroller.setup({ step: '.step', offset: 0.6 })
+      scroller.setup({ step: '.step', offset: 0.7 })
         .onStepEnter(({ index }) => {
           console.log('[ScrollStage] onStepEnter index =', index);
           this.currentStep = index
           this.updateLayout(index)
-          if (index === 3) {
+          if (index === 4) {
             console.log('[ScrollStage] about to emit reached-end');
             setTimeout(() => {
               this.$emit('reached-end')
@@ -383,6 +391,11 @@ this.nameSim
 
     updateLayout(index) {
         // wipe out any old labels / boxes / timeline
+        if (this.$refs.legend) {
+          d3.select(this.$refs.legend).selectAll('*').remove();
+        }
+
+
         this.svg.selectAll(
           '.cluster-label, .timeline-line, .timeline-text, .uncertainty, .silhouette, .name-box, .name-text'
         ).remove();
@@ -444,7 +457,7 @@ this.nameSim
   this.nodesSettled = false;
 setTimeout(() => {
   this.nodesSettled = true;
-}, 800); // give it time to settle, tweak as needed
+}, 1000); // do I need to add an if settled the pointer event none?
 
 
       // Create hoverable behavior for circles
@@ -502,76 +515,144 @@ this.node = this.svg.selectAll('circle')
   .velocityDecay(0.5)   // floatier movement, not snappy
   .restart()
 
+  // this.legendMaker();
 
       
     },
 
+
     drawTimelineLayout() {
-      this.simulation.stop()
+  this.simulation.stop()
 
-      const timeExtent = d3.extent(this.nodes, d => +d.original_date || 0)
-      const xScale = d3.scaleLinear()
-        .domain([timeExtent[0] - 100, timeExtent[1] + 100])
-        .range([100, this.width - 100])
+  let margin_timeline = 80;
+  // 1. compute your time extent & X‐scale
+  const timeExtent = d3.extent(this.nodes, d => +d.original_date || 0)
+  const xScale = d3.scaleLinear()
+    .domain([timeExtent[0] - 100, timeExtent[1] + 100])
+    .range([100, this.width - 100])
 
-      this.svg.append('g')
-        .attr('transform', `translate(0, ${this.height - 40})`)
-        .call(d3.axisBottom(xScale))
-        .selectAll('text').style('fill', 'white')
+  // 2. determine your Y‐extent (for the Y-axis)
+  //    I'll assume you want it to span from just above your highest‐stacked node
+  //    down to the bottom margin (height - 40). Adjust minY as needed.
+  const maxStackCount = d3.max(Array.from(this.nodes.reduce((m, d) => {
+    const x = xScale(d.original_date)
+    const c = (m.get(x) || 0) + 1
+    m.set(x, c)
+    return m
+  }, new Map()).values()))
+  const baseY = this.height -margin_timeline
+  const minY = baseY - (maxStackCount - 1) * 10  // spacing = 10
+  const yScale = d3.scaleLinear()
+    .domain([minY, this.height -margin_timeline])
+    .range([minY, this.height -margin_timeline])
 
-      this.svg.append("line")
-        .attr("class", "timeline-line")
-        .attr("x1", xScale(0))
-        .attr("x2", xScale(0))
-        .attr("y1", 0)
-        .attr("y2", this.height)
-        .style("stroke", "white")
-        .style("stroke-width", 8)
-        .style("stroke", "white")
-        
+  // 3. draw & style the bottom (X) axis
+  const xAxisG = this.svg.append('g')
+    .attr('transform', `translate(0, ${this.height -margin_timeline})`)
+    .call(d3.axisBottom(xScale))
+  xAxisG.selectAll('text')
+    .style('fill', 'white')
+    .style('font-family', 'Jaro, sans-serif')
+    .style('font-size', 28)
 
 
-      this.svg.append("text")
-        .attr("class", "timeline-text")
-        .attr("x", xScale(0) + 8)
-        .attr("y", 70)
-        .text("Birth of Christ")
-        .style("fill", "white")
-        .style("font-size", "24px")
-        .style("font-family", "jaro")
-        
+  xAxisG.selectAll('path, line')
+     .attr('y2', 8)
+    .style('stroke', 'white')
+    .style('stroke-width', 4)
 
-      const stackMap = new Map()
-      const spacing = 10
-      const baseY = this.height - 80
-      const nodePositions = []
 
-      for (const d of this.nodes) {
-        const x = xScale(d.original_date)
-        const count = stackMap.get(x) || 0
-        const y = baseY - count * spacing
-        stackMap.set(x, count + 1)
 
-        this.svg.append("rect")
-          .attr("class", "uncertainty")
-          .attr("x", xScale(d.original_date - d.date_range_confidence))
-          .attr("y", y - 10)
-          .attr("width", xScale(d.original_date + d.date_range_confidence) - xScale(d.original_date - d.date_range_confidence))
-          .attr("height", 18)
-          .attr("fill", this.$clusterMeta[d.archetype]?.color || '#888')
-          .attr("opacity", 0.1)
-          .attr("rx", 10)
 
-        nodePositions.push({ ...d, x, y })
-      }
+  // 5. your existing “zero” reference line + label
+  this.svg.append("line")
+    .attr("class", "timeline-line")
+    .attr("x1", xScale(0))
+    .attr("x2", xScale(0))
+    .attr("y1",margin_timeline)
+    .attr("y2", this.height -margin_timeline)
+    .style("stroke", "white")
+    .style("stroke-width", 8)
+    .style("stroke-dasharray", "4 4")
+    .style('opacity', 0.5)
 
-      this.node
-        .data(nodePositions, d => d.character)
-        .transition()
-        .duration(1700)
-        .attr('cx', d => d.x)
-        .attr('cy', d => d.y)
-    }
+  this.svg.append("text")
+    .attr("class", "timeline-text")
+    .attr("x", xScale(0) + 8)
+    .attr("y", margin_timeline+20)
+    .text("Birth of Christ")
+    .style("fill", "white")
+    .style("font-size", "28px")
+    .style("font-family", "jaro")
+    .style('opacity', 0.8)
+
+  // 6. build your uncertainty bars & stack‐positions exactly as before
+  const stackMap = new Map()
+  const spacing = 20
+  const nodePositions = []
+
+  for (const d of this.nodes) {
+    const x = xScale(d.original_date)
+    const count = stackMap.get(x) || 0
+    const y = baseY - count * spacing
+    stackMap.set(x, count + 1)
+
+    this.svg.append("rect")
+      .attr("class", "uncertainty")
+      .attr("x", xScale(d.original_date - d.date_range_confidence))
+      .attr("y", y - 10)
+      .attr("width", xScale(d.original_date + d.date_range_confidence) - xScale(d.original_date - d.date_range_confidence))
+      .attr("height", 18)
+      .attr("fill", this.$clusterMeta[d.archetype]?.color || '#888')
+      .attr("opacity", 0.1)
+      .attr("rx", 10)
+
+    nodePositions.push({ ...d, x, y })
+  }
+
+  // 7. transition your circles to their new X/Y
+  this.node
+    .data(nodePositions, d => d.character)
+    .transition()
+    .duration(1700)
+    .attr('cx', d => d.x)
+    .attr('cy', d => d.y-20)
+
+    // this.legendMaker();
+},
+legendMaker() {
+    // clear any old legend
+    const container = d3.select(this.$refs.legend);
+   
+
+    // 7 archetypes from your clusterMeta
+    const archetypes = Object.values(this.$clusterMeta);
+    console.log(archetypes)
+
+    // one legend‐item per archetype
+    archetypes.forEach(a => {
+      const item = container.append('div')
+        .attr('class', 'legend-item');
+
+      item.append('div')
+        .attr('class', 'swatch')
+        .style('background', a.color || 'white');
+
+      item.append('span')
+        .text(a.name)
+        .style('color', a.color)
+        .style('text-align', 'left');
+    });
+
+    // confidence‐scale swatch + label
+    const conf = container.append('div')
+      .attr('class', 'confidence');
+
+    conf.append('div')
+      .attr('class', 'swatch');
+    conf.append('span')
+      .text('Confidence scale');
+  },
   }
 }
 </script>
@@ -588,7 +669,7 @@ this.node = this.svg.selectAll('circle')
   font-size: 16px;
   border-radius: 6px;
   pointer-events: all;     /* don’t steal pointer events */
-  color: white;
+
   z-index: 6;           /* on top of everything */
 }
 
@@ -665,6 +746,50 @@ this.node = this.svg.selectAll('circle')
   pointer-events: none;
   color: white;
   z-index: 5;
+}
+
+
+
+/* legend */
+.legend-container {
+  position: sticky;
+  top: 20px;
+  right: 20px;
+  width: 300px;
+  height: 400px;;
+  pointer-events: none;    /* let clicks pass through to SVG if you like */
+  z-index: 10;
+  font-family: jaro;
+  color: white;
+  border-radius: 15px;
+ 
+}
+.legend-container .legend-item {
+  margin-bottom: 6px;
+}
+.legend-container .legend-item .swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  /* flex-shrink: 0; */
+}
+.legend-container .confidence {
+  /* display: flex; */
+  align-items: left;
+  margin-top: 12px;
+}
+.legend-container .confidence .swatch {
+  width: 16px;
+  height: 16px;
+  /* flex-shrink: 0; */
+  background: #888;
+  opacity: 0.5;
+  margin-right: 8px;
+}
+.legend-container span {
+  margin-left: 8px;
+  font-size: 28px;
+  text-align: left;
 }
 
 </style>
