@@ -18,12 +18,15 @@
             {{ name }}
           </div>
         </div>
+        
       </div>
+      <!-- :style="{ color: selectedColor }" -->
+      <h4 class = "archText" > 
+          {{ clusterMeta[selectedArchetype]?.description || '' }}
+        </h4>
       <div class="everything">
             <!-- All charts use the same selectedArchetype + clusterMeta -->
-              <h4>
-                {{ clusterMeta[selectedArchetype]?.description || '' }}
-              </h4>
+              
             <h2>Important Characteristics</h2>
             <archetype-grid :key="selectedArchetype"         
       :selectedArchetype="selectedArchetype"
@@ -33,8 +36,12 @@
                 <span class="specialText" :style="{ color: selectedColor }">{{ selectedArchetypeName }}</span>
                 characteristic
             </h2>
-            <h4> X axis = Highest Characteristic</h4>
-            <h4> Y axis = Lowest Characteristic  </h4>
+            <h4 class="axisLabels2">
+              X axis = Highest Characteristic<br>
+              Y axis = Lowest Characteristic
+            </h4>
+
+            
 
             <archetype-scatter
       :key="selectedArchetype + '-scatter'"
@@ -156,7 +163,7 @@
   
   .everything {
     
-    padding: 2rem;
+    padding:2rem;
     
   }
   h2{
@@ -171,6 +178,7 @@
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+    letter-spacing: 0.03em;
 
   }
   .specialText
@@ -183,16 +191,26 @@ font-weight: 400;
 line-height: normal;
 
   }
-  .archetype-micro-container {
-  width: 100vw;
-  max-width: 100vw;
-  min-height: 100vh;
-  padding: 2rem;
-  background: black;
-  overflow-x: hidden;
-  height: auto;
-  position: relative;
-  z-index: 1;
+.archetype-micro-container {
+width: 100vw;
+max-width: 100vw;
+min-height: 100vh;
+padding: 2rem;
+background: black;
+overflow-x: hidden;
+height: auto;
+position: relative;
+z-index: 1;
+}
+
+
+.axisLabels2{
+  font-family: Jaro;
+  color: #fff;
+  font-size: 28px;
+  text-align: left;
+  margin: 0px;
+
 }
 
 /* //charts */
@@ -200,16 +218,20 @@ line-height: normal;
 text-transform: capitalize;
   fill: white;
   font-size: 24px;
-  font-family: Jura, serif;
+  font-family: Oswald, sans-serif;
   font-weight: 900;
 }
-h4 {
-  font-family: "Jura", sans-serif;  /* or whatever you’re using */
+.archText {
+  font-family: 'Oswald', sans-serif;
   font-weight: 400;
-  font-size: 24px;
+  font-size: 28px;
   text-align: left;
+  margin-top: 1rem;
+  margin-bottom: 0px;
+  line-height: 1.14;
+  letter-spacing: 0.03em;
+  width: 1250px;
   color: white;
-  margin: 0px;
 }
 .micro‐wrapper {
   position: sticky;
@@ -217,49 +239,8 @@ h4 {
 }
 
 
-.dropdown-container {
-    text-transform: uppercase;;
-  width: 500px;
-  font-family: jaro;
-  position: relative; 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-  border: 2px solid rgba(255, 255, 255, 0.50);
-  background: rgba(251, 251, 251, 0.50);
-  font-size: 60px;
-  border-radius: 1rem;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
+.dropdown-option:hover {
+  background-color: #787878;
 }
-
-.dropdown-options {
-  width: 100%; /* ✨ Full width matching dropdown */
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: #444;
-  color: white;
-  margin-top: 0.5rem;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  z-index: 10;
-}
-
-
-.dropdown-option {
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-}
-.dropdown-arrow {
-  width: 8px; /* adjust size */
-  height: 8px;
- 
-  
-}
-  .dropdown-option:hover {
-    background-color: #222;
-  }
   </style>
   

@@ -321,7 +321,7 @@ body {
 
 .dropdown-container {
     text-transform: uppercase;;
-  width: 500px;
+  width: 600px;
   font-family: jaro;
   position: relative; 
     display: flex;
@@ -360,11 +360,13 @@ body {
  
   
 }
-  .dropdown-option:hover {
+.dropdown-option:hover {
     background-color: #222;
   }
 
-
+.dropdown-container :hover {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2))
+  }
 
 /* quiz css */
 
@@ -385,5 +387,8 @@ body {
   filter:
     drop-shadow(0 0 8px rgba(219,243,157,0.5))
     drop-shadow(0 0 16px rgba(253,205,84,0.5));
+}
+h4{
+  font-family: 'Oswald', sans-serif;
 }
 </style>

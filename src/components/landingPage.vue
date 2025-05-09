@@ -105,15 +105,14 @@ export default {
     padding: 0 0 0 120px;
     color: #FDCD54;
     width: 320px;
-    font-size: 24px;
+    font-size: 28px;
     font-style: normal;
     line-height: 1.2;
-    text-align: center;
-    justify-content: center;
-    font-family: "Jura", sans-serif;  /* or whatever you’re using */
- 
-
+    text-align: left;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 400;
     font-style: normal;
+    letter-spacing: 1.1;
   }
   
   .corner-svg {

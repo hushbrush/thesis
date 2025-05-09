@@ -99,9 +99,10 @@ computed: {
 position: absolute;
 inset: 0;
 padding: 40px;
-font-family: 'Jura', sans-serif;
-font-size: 18px;
+font-family: 'Oswald', sans-serif;
+font-size: 20px;
 line-height: 1.7;
+font-weight: 500;
 z-index: 1;
 color: #fff;
 overflow-y: auto;
@@ -179,12 +180,10 @@ padding: 10px;
 z-index: 3;
 }
 
-.text-wall.general .quote {
-color: rgba(255,255,255,0.7);  /* light ghost text behind */
-}
+
 .text-wall.inside .quote {
 color: var(--highlight-color);
-opacity: 0.9;   /* you can dial this down if it’s too solid */
+opacity: 0.8;   /* you can dial this down if it’s too solid */
 }
 
 </style>

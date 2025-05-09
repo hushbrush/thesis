@@ -229,8 +229,6 @@ p{
   font-weight: bold;
   text-transform: uppercase; 
   margin-bottom: 1px;
-  /* -webkit-text-stroke-width: 1.5px;
-  -webkit-text-stroke-color: white; */
   color: white;
   letter-spacing: 1.5;
  

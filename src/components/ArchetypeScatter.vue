@@ -1,3 +1,5 @@
+<!-- legend on the left of scatter, tick text being white, adding tooltip for 2 and 3 and then go back to scrollstage and add it to the timeline there too.  -->
+
 <template>
   <div class="scatter-container">
     <div class="scatter-layout">
@@ -10,6 +12,13 @@
         <button @click="zoomed = !zoomed" class="zoom-button">
           {{ zoomed ? "Reset Zoom" : "Zoom into Quadrants" }}
         </button>
+        
+         <div
+          class="legend-container"
+          ref="legend"
+        ></div>
+    
+
       </div>
       
     </div>
@@ -69,6 +78,8 @@ chart.append('g')
   // recolor the domain line and tick lines:
   .selectAll('path, line')
     .attr('stroke', 'white')
+    .style('stroke-width', 3)
+
   .selectAll('text')      // then recolor the tick labels
     .attr('fill', 'white');
 
@@ -78,6 +89,7 @@ chart.append('g')
   .call(d3.axisLeft(yScale))
   .selectAll('path, line')
     .attr('stroke', 'white')
+    .style('stroke-width', 3)
   .selectAll('text')
     .attr('fill', 'white');
 
@@ -189,17 +201,18 @@ chart.append('g')
 <style scoped>
 .scatter-container {
   background: black;
-  padding: 2rem;
+ 
 }
 .scatter-layout {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex;
 }
-.chart-section { flex: 1; }
-.right-section { margin-left: 2rem; }
+
 .zoom-button {
   background: rgba(255,255,255,0.1); border:2px solid white;
   color:white; padding:.5rem 1rem; font-family:Jaro;
   border-radius:8px; cursor:pointer;
+  
+  
 }
 .zoom-button:hover {
   background:rgb(85, 85, 85); color:white;
@@ -207,4 +220,7 @@ chart.append('g')
 .axis-label {
   fill: white; font-size: 18px;
 }
+.right-section { 
+  font-family: 'Jaro, sans-serif';
+ }
 </style>
