@@ -8,7 +8,7 @@
     <div
       ref="legend"
       class="legend-container"
-      v-show="currentStep >= 3"
+      v-show="currentStep >= 2"
     ></div>
 
     <div class="steps">
@@ -70,7 +70,10 @@ export default {
 
   methods: {
     ticked() {
-      this.node.attr('cx', d => d.x).attr('cy', d => d.y)
+      const isTimeline = this.currentStep === 3;
+    this.node
+      .attr('cx', d => d.x)
+      .attr('cy', d => isTimeline ? d.y - 20 : d.y);
     },
 
     drawInitialNodes() {
@@ -178,21 +181,25 @@ export default {
     },
 
     setupScrollama() {
-      const scroller = scrollama()
-      scroller.setup({ step: '.step', offset: 0.7 })
-        .onStepEnter(({ index }) => {
-          console.log('[ScrollStage] onStepEnter index =', index);
-          this.currentStep = index
-          this.updateLayout(index)
-          if (index === 4) {
-            console.log('[ScrollStage] about to emit reached-end');
-            setTimeout(() => {
-              this.$emit('reached-end')
-            }, 2000) // Try 500–800ms to start with
-          }
+  const scroller = scrollama()
+  scroller
+    .setup({ step: '.step', offset: 0.7 })
+    .onStepEnter(({ index }) => {
+      this.currentStep = index
 
-        })
-    },
+      // redraw the legend as soon as we hit the map (2) or timeline (3)
+      if (index === 2 || index === 3) {
+        this.legendMaker()
+      }
+
+      this.updateLayout(index)
+      
+      if (index === 4) {
+        setTimeout(() => this.$emit('reached-end'), 700)
+      }
+    })
+},
+
     showCharacterTooltip(d, place) {
   const estimatedWidth = Math.max(
     d.character.split(/\s+/).reduce((acc, word) => acc + word.length * 14, 0) + 40,
@@ -598,12 +605,13 @@ this.node = this.svg.selectAll('circle')
     this.svg.append("rect")
       .attr("class", "uncertainty")
       .attr("x", xScale(d.original_date - d.date_range_confidence))
-      .attr("y", y - 10)
+      .attr("y", y - 30)
       .attr("width", xScale(d.original_date + d.date_range_confidence) - xScale(d.original_date - d.date_range_confidence))
       .attr("height", 18)
       .attr("fill", this.$clusterMeta[d.archetype]?.color || '#888')
-      .attr("opacity", 0.1)
+      .attr("opacity", 0.2)
       .attr("rx", 10)
+      
 
     nodePositions.push({ ...d, x, y })
   }
@@ -649,7 +657,7 @@ legendMaker() {
     conf.append('div')
       .attr('class', 'swatch');
     conf.append('span')
-      .text('Confidence scale');
+      .text("Date Variation");
   },
   }
 }
@@ -750,44 +758,56 @@ legendMaker() {
 
 /* legend */
 .legend-container {
-  position: absolute;
-  top: 20px;
+  position: fixed;
+  
+  top: 50px;
   right: 20px;
-  width: 300px;
-  height: 400px;;
+  width: 200px;
+  height: 200px;;
   pointer-events: auto;    /* let clicks pass through to SVG if you like */
   z-index: 10;
   font-family: jaro;
   color: white;
   border-radius: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  text-align: left;
  
 }
-.legend-container .legend-item {
-  margin-bottom: 6px;
-}
+
 .legend-container .legend-item .swatch {
   width: 16px;
   height: 16px;
   border-radius: 50%;
   /* flex-shrink: 0; */
 }
-.legend-container .confidence {
-  /* display: flex; */
-  align-items: left;
-  margin-top: 12px;
-}
-.legend-container .confidence .swatch {
-  width: 16px;
-  height: 16px;
-  /* flex-shrink: 0; */
-  background: #888;
-  opacity: 0.5;
-  margin-right: 8px;
-}
-.legend-container span {
-  margin-left: 8px;
-  font-size: 28px;
-  text-align: left;
+.legend-container ::v-deep .confidence {
+  margin-top: 36px;
+  border-radius: 20px;
+  /* a left→right gradient through your seven colors at 10% opacity */
+  background: linear-gradient(
+    90deg,
+    rgba(171,217,22,0.5)   0%,
+    rgba(28,230,213,0.5)  16.7%,
+    rgba(249,198,79,0.5)  33.3%,
+    rgba(255,0,136,0.5)   50%,
+    rgba(245,159,242,0.5) 66.7%,
+    rgba(219,243,157,0.5) 83.3%,
+    rgba(250,131,57,0.5) 100%
+  );
 }
 
+
+.legend-container ::v-deep span {
+  
+  font-size: 24px;
+  text-align: left;
+  padding-left:12px;
+  padding-bottom: 0px;
+  line-height: 25px;
+
+}
+
+.uncertainty{
+  z-index: 0;
+}
 </style>

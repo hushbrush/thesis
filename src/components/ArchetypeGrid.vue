@@ -136,9 +136,7 @@ export default {
         .attr('font-family', 'Oswald, sans-serif')
         .attr('class', 'axis-label-y');
 
-      // tooltip: I'm pretty sure this wasnt working atm so  will have to come back to this in the end. 
-      // const tooltip = document.getElementById('tooltip');
-
+   
 
 
       // grab the base color for the selected archetype
