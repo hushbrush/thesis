@@ -52,6 +52,12 @@ export default {
         .filter(d => d.archetype === this.selectedArchetype && d.original_date)
         .sort((a, b) => a.original_date - b.original_date)
 
+      // right after `const filtered = …`
+      const strengths = filtered.map(d => d.strength);
+      const maxStrength = d3.max(strengths) || 0;
+      const yMax = maxStrength * 1.1;    // 10% cushion above your highest point
+
+
       if (!filtered.length) {
         // nothing to draw
         return
@@ -66,7 +72,7 @@ export default {
         .range([0, width])
 
       const yScale = d3.scaleLinear()
-        .domain([0, 1])
+        .domain([0, yMax])
         .range([height, 0])
 
       // prep force nodes
@@ -107,14 +113,14 @@ export default {
       const xAxis = chart.append('g')
         .attr('transform', `translate(0, ${height})`)
         .call(d3.axisBottom(xScale).ticks(6).tickFormat(d3.format('d')))
-      xAxis.selectAll('path, line').attr('stroke', 'white')
-      xAxis.selectAll('text').attr('fill', 'white')
+      xAxis.selectAll('path, line').attr('stroke', 'white').style('stroke-width', 3)
+      xAxis.selectAll('text').attr('fill', 'white').attr('font-family', 'Oswald, sans-serif')
 
       // left axis
       const yAxis = chart.append('g')
         .call(d3.axisLeft(yScale).ticks(5).tickFormat(d => (d * 100) + '%'))
-      yAxis.selectAll('path, line').attr('stroke', 'white')
-      yAxis.selectAll('text').attr('fill', 'white')
+      yAxis.selectAll('path, line').attr('stroke', 'white').style('stroke-width', 3)
+      yAxis.selectAll('text').attr('fill', 'white').attr('font-family', 'Oswald, sans-serif')
 
       // axis labels
       chart.append('text')
@@ -131,30 +137,20 @@ export default {
         .attr('x', -height/2)
         .attr('y', -50)
         .attr('text-anchor', 'middle')
-        .text('Strength')
+        .text('Closeness to Archetype')
         .attr('fill', 'white')
 
       // tooltip
       const tooltip = d3.select('#tooltip')
       circles
         .on('mouseover', (event, d) => {
-          tooltip
-            .style('display', 'block')
-            .html(`
-              <div style="font-weight:bold;font-size:18px;">
-                ${d.character} (${d.original_date})
-              </div>
-              <div>Strength: ${(d.strength*100).toFixed(0)}%</div>
-              <div style="font-style:italic;">${d.title}</div>
-            `)
+          
         })
         .on('mousemove', event => {
-          tooltip
-            .style('left', `${event.pageX + 10}px`)
-            .style('top',  `${event.pageY - 25}px`)
+          
         })
         .on('mouseout', () => {
-          tooltip.style('display', 'none')
+         
         })
     }
   }

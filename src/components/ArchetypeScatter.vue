@@ -5,7 +5,13 @@
     <div class="scatter-layout">
       
       <div class="chart-section">
-        <svg ref="scatter" :width="chartWidth" :height="chartHeight"></svg>
+        <svg
+  ref="scatter"
+  :width="chartWidth"
+  :height="chartHeight"
+  style="margin-left: 3rem;"
+></svg>
+
       </div>
       
       <div class="right-section">
@@ -13,10 +19,19 @@
           {{ zoomed ? "Reset Zoom" : "Zoom into Quadrants" }}
         </button>
         
-         <div
-          class="legend-container"
-          ref="legend"
-        ></div>
+        <div class="legend-container">
+          <div
+            v-for="(meta, idx) in clusterMeta"
+            :key="idx"
+            class="legend-item"
+            :style="{ color: meta.color, opacity: filterArchetype === null || filterArchetype === idx ? 1 : 0.3 }"
+            @click="onLegendClick(idx)"
+          >
+            {{ meta.name }}
+          </div>
+        </div>
+
+
     
 
       </div>
@@ -42,11 +57,17 @@ export default {
       chartWidth:   window.innerWidth * 4/5,
       chartHeight:  window.innerHeight * 2/3,
       allData:      data,
-      archetypeData: []   // <- just the rows for this archetype
+      archetypeData: [] ,  // <- just the rows for this archetype
+      filterArchetype: null 
     };
   },
 
   methods: {
+    onLegendClick(idx) {
+    // toggle: click same legend twice to reset
+    this.filterArchetype = this.filterArchetype === idx ? null : idx;
+    this.updateScatter();
+  },
     setArchetypeData() {
       this.archetypeData = this.allData.filter(
         d => d.archetype === this.selectedArchetype
@@ -72,25 +93,29 @@ export default {
 
       // draw axes through the 0.5 midpoints
       // bottom axis
-chart.append('g')
+const xAxisG = chart.append('g')
   .attr('transform', `translate(0, ${yScale(0.5)})`)
   .call(d3.axisBottom(xScale))
   // recolor the domain line and tick lines:
-  .selectAll('path, line')
+  xAxisG.selectAll('path, line')
     .attr('stroke', 'white')
     .style('stroke-width', 3)
 
-  .selectAll('text')      // then recolor the tick labels
-    .attr('fill', 'white');
+  xAxisG.selectAll('text')   
+  .attr('font-family', 'Oswald, sans-serif')  
+    .style('fill', 'white');
 
 // left axis
-chart.append('g')
+const yAxisG = chart.append('g')
   .attr('transform', `translate(${xScale(0.5)}, 0)`)
   .call(d3.axisLeft(yScale))
-  .selectAll('path, line')
+
+  yAxisG.selectAll('path, line')
     .attr('stroke', 'white')
     .style('stroke-width', 3)
-  .selectAll('text')
+
+   yAxisG.selectAll('text')
+    .attr('font-family', 'Oswald, sans-serif')
     .attr('fill', 'white');
 
 
@@ -109,9 +134,13 @@ chart.append('g')
       const highest = sorted[0];
       const lowest  = sorted[sorted.length-1];
 
+      const displayData = this.filterArchetype === null
+      ? this.allData
+      : this.allData.filter(d => d.archetype === this.filterArchetype);
+
       // plot *all* characters by those two axes
       chart.selectAll('circle')
-        .data(this.allData)
+        .data(displayData)
         .enter().append('circle')
           .attr('cx', d => {
             const m = new Map(d.characteristics);
@@ -128,9 +157,9 @@ chart.append('g')
       // axis labels
       chart.append('text')
         .attr('class','axis-label')
-        .attr('x', width-10)
+        .attr('x', 20)
         .attr('y', yScale(0.5)-10)
-        .attr('text-anchor','end')
+        .attr('text-anchor','start')
         .text(highest);
 
       chart.append('text')
@@ -223,4 +252,26 @@ chart.append('g')
 .right-section { 
   font-family: 'Jaro, sans-serif';
  }
+
+ .axis-label text {
+  fill: white;
+}
+
+/* legend */
+.legend-container{
+  margin-top: 3rem;
+}
+.legend-item {
+  font-family: 'Jaro', sans-serif;
+  text-align: left;
+  font-size: 24px;
+  padding-left: 1rem;
+
+
+}
+button{
+  width: 150px;
+  height: 75px;
+}
+
 </style>

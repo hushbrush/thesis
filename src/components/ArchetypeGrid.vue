@@ -111,20 +111,30 @@ export default {
           .style('border-radius', '50px');
 
       // X axis
-      chart.append('g')
+      const xAxisG = chart.append('g')
         .attr('transform', `translate(0, ${height})`)
         .call(d3.axisBottom(xScale))
-        .selectAll("text")
+
+      xAxisG.selectAll('path, line')
+      .attr('stroke-width', 3)
+
+      xAxisG.selectAll('text')
           .attr('class', 'axis-label-x')
-          .text(t => this.titleCase(t))  
+          .text(t => this.titleCase(t)) 
+          .attr('font-family', 'Oswald, sans-serif') 
           .attr("transform", "rotate(-45)")
           .style("text-anchor", "end");
 
       // Y axis
-      chart.append('g')
+      const yAxisG = chart.append('g')
         .call(d3.axisLeft(yScale))
-        .selectAll("text")
-          .attr('class', 'axis-label-y');
+
+    yAxisG.selectAll('path, line')
+    .attr('stroke-width', 3);
+
+    yAxisG.selectAll('text')
+        .attr('font-family', 'Oswald, sans-serif')
+        .attr('class', 'axis-label-y');
 
       // tooltip: I'm pretty sure this wasnt working atm so  will have to come back to this in the end. 
       // const tooltip = document.getElementById('tooltip');
