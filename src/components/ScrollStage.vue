@@ -181,25 +181,26 @@ export default {
     },
 
     setupScrollama() {
-  const scroller = scrollama()
-  scroller
-    .setup({ step: '.step', offset: 0.7 })
-    .onStepEnter(({ index }) => {
-      this.currentStep = index
+    const scroller = scrollama()
+      .setup({ step: '.step', offset: 0.7 })
+      .onStepEnter(({ index }) => {
+        this.currentStep = index;
+        this.updateLayout(index);
 
-      // redraw the legend as soon as we hit the map (2) or timeline (3)
-      if (index === 2 || index === 3) {
-        this.legendMaker()
-      }
-
-      this.updateLayout(index)
-      
-      if (index === 4) {
-        setTimeout(() => this.$emit('reached-end'), 700)
-      }
-    })
-},
-
+        if (index === 4) {
+            console.log('[ScrollStage] about to emit reached-end');
+            setTimeout(() => {
+              this.$emit('reached-end')})}
+      })
+      .onStepExit(({ index, direction }) => {
+        // if we're scrolling up out of step N, go back to N-1
+        if (direction === 'up') {
+          const prev = index - 1;
+          this.currentStep = prev;
+          this.updateLayout(prev);
+        }
+      });
+  },
     showCharacterTooltip(d, place) {
   const estimatedWidth = Math.max(
     d.character.split(/\s+/).reduce((acc, word) => acc + word.length * 14, 0) + 40,
@@ -382,12 +383,13 @@ this.nameSim
 
 
         this.svg.selectAll(
-          '.cluster-label, .timeline-line, .timeline-text, .uncertainty, .silhouette, .name-box, .name-text'
-        ).remove();
+      '.cluster-label, .timeline-line, .timeline-text, ' +
+      '.uncertainty, .silhouette, .name-item'
+    ).remove()
 
         // now branch on the new step numbering
         if (index === 0) {
-          this.drawNameBoxes();                // NEW!
+          this.drawNameBoxes();               
         }
         // step 1: morph into your circles
         else if (index === 1) {
@@ -419,7 +421,7 @@ this.nameSim
         }
         else if (index === 4) {
           this.$nextTick(() => {
-        this.legendMaker();
+       console.log("we should be moving soon")
       });
           // your existing “emit reached-end” logic lives in setupScrollama
         }
