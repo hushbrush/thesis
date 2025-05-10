@@ -70,14 +70,15 @@
   }
   .center-box {
     position: sticky;
-    top: 4rem;
+    top: 2rem;
     background: #fff;
     border: 2px solid #444;
     border-radius: 8px;
     padding: 1rem;
     color: #000;
     height: 50%;
-    margin-top: 75%;
+    width: 100%;
+    margin-top: 50%;
 
 
   }
