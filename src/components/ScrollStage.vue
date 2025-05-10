@@ -1,31 +1,31 @@
 <template>
   <div class="scrolly-container">
     <div class="background-layer" :class="'bg-step-' + currentStep"></div>
-    <div class="graphic" ref="chart">
-      <!-- <div
-     v-if="currentStep === 3"
-     class="legend-container"
-     ref="legend"
-   ></div> -->
-    </div>
+
+    <div class="graphic" ref="chart"></div>
+
+    <!-- keep it always in the DOM, hide it until step 3 or 4 -->
+    <div
+      ref="legend"
+      class="legend-container"
+      v-show="currentStep >= 3"
+    ></div>
 
     <div class="steps">
       <div class="step" data-step="0"></div>
       <div class="step" data-step="1"></div>
       <div class="step" data-step="2"></div>
       <div class="step" data-step="3"></div>
-      <div class="step" data-step="4" style="height: 120vh;"></div>
-     
+      <div class="step" data-step="4" style="height:120vh"></div>
     </div>
-   
-<!-- extra space to scroll into next section -->
-<div style="height: 100vh;"></div>
 
+    <div style="height:100vh"></div>
     <div v-if="showArchetypeSection">
       <ArchetypeMicro />
     </div>
   </div>
 </template>
+
 
 <script>
 import * as d3 from 'd3'
@@ -76,7 +76,6 @@ export default {
     drawInitialNodes() {
       this.createLabels()
       this.createNodes()
-      // this.bindTooltip()
       this.createSimulation()
     },
 
@@ -165,28 +164,7 @@ export default {
       
     },
 
-    bindTooltip() {
-      this.node
-        .on('mouseover', function (event, d) {
-          const tooltip = document.getElementById('tooltip')
-          d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2)
-          tooltip.style.display = 'block'
-          tooltip.innerHTML = `
-            <div style="font-weight: bold; font-size: 20px;">${d.character}</div>
-           
-            <div>${d.bio}</div>
-            <div style="font-style: italic;">${d.title}</div>`
-        })
-        .on('mousemove', function (event) {
-          const tooltip = document.getElementById('tooltip')
-          tooltip.style.left = `${event.pageX + 12}px`
-          tooltip.style.top = `${event.pageY - 30}px`
-        })
-        .on('mouseout', function () {
-          d3.select(this).attr('stroke', null)
-          document.getElementById('tooltip').style.display = 'none'
-        })
-    },
+   
 
     createSimulation() {
       this.simulation = d3.forceSimulation(this.nodes)
@@ -426,16 +404,36 @@ this.nameSim
 
         else if (index === 2) {
           this.drawMapLayout();
+          this.legendMaker()
         }
         else if (index === 3) {
           this.drawTimelineLayout();
+          this.$nextTick(() => this.legendMaker());
         }
         else if (index === 4) {
+          this.$nextTick(() => {
+        this.legendMaker();
+      });
           // your existing “emit reached-end” logic lives in setupScrollama
         }
       },
 
+      legendMaker() {
+    const container = d3.select(this.$refs.legend);
+    container.selectAll('*').remove();  // clear any old legend
 
+    const archetypes = Object.values(this.$clusterMeta);
+    archetypes.forEach(a => {
+      const item = container.append('div').attr('class','legend-item');
+      item.append('div')
+          .attr('class','swatch')
+          .style('background', a.color);
+      item.append('span')
+          .text(a.name)
+          .style('color', a.color)
+          .style('font-size','28px')
+          .style('font-family','Jaro');
+    })},
     drawClusterLayout() {
       const centers = computeClusterCentersBySize(this.nodes, this.width*6/7, this.height+100, 220)
       this.createLabels()
@@ -559,7 +557,7 @@ this.node = this.svg.selectAll('circle')
   xAxisG.selectAll('path, line')
      .attr('y2', 8)
     .style('stroke', 'white')
-    .style('stroke-width', 4)
+    .style('stroke-width', 3)
 
 
 
@@ -583,7 +581,7 @@ this.node = this.svg.selectAll('circle')
     .text("Birth of Christ")
     .style("fill", "white")
     .style("font-size", "28px")
-    .style("font-family", "jaro")
+    .style("font-family", "Jaro")
     .style('opacity', 0.8)
 
   // 6. build your uncertainty bars & stack‐positions exactly as before
@@ -752,12 +750,12 @@ legendMaker() {
 
 /* legend */
 .legend-container {
-  position: sticky;
+  position: absolute;
   top: 20px;
   right: 20px;
   width: 300px;
   height: 400px;;
-  pointer-events: none;    /* let clicks pass through to SVG if you like */
+  pointer-events: auto;    /* let clicks pass through to SVG if you like */
   z-index: 10;
   font-family: jaro;
   color: white;

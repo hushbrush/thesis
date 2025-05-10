@@ -16,7 +16,7 @@
       
       <div class="right-section">
         <button @click="zoomed = !zoomed" class="zoom-button">
-          {{ zoomed ? "Reset Zoom" : "Zoom into Quadrants" }}
+          {{ zoomed ? "Reset Zoom" : "Zoom into Left" }}
         </button>
         
         <div class="legend-container">
@@ -63,6 +63,34 @@ export default {
   },
 
   methods: {
+    showCharacterTooltip(d) {
+    // exactly the same code you have in ScrollStage:
+    const estimatedWidth = Math.max(
+      d.character.split(/\s+/).reduce((acc, w) => acc + w.length * 14, 0) + 40,
+      280
+    );
+    // Character name box
+    d3.select(this.$refs.scatter)  // or this.svg if you kept that ref
+      .append('foreignObject')
+        .attr('class','hover-tooltip name')
+        .attr('x', x /* compute x */)
+        .attr('y', y /* compute y */)
+        .attr('width', estimatedWidth)
+        .attr('height', 140)
+      .append('xhtml:div')
+        /* styling identical to ScrollStage… */
+        .text(d.character);
+
+    // Bio box
+    d3.select(this.$refs.scatter)
+      .append('foreignObject')
+        .attr('class','hover-tooltip bio')
+        /* etc… same as ScrollStage */;
+  },
+
+  clearCharacterTooltip() {
+    d3.select(this.$refs.scatter).selectAll('.hover-tooltip').remove();
+  },
     onLegendClick(idx) {
     // toggle: click same legend twice to reset
     this.filterArchetype = this.filterArchetype === idx ? null : idx;
@@ -139,6 +167,7 @@ const yAxisG = chart.append('g')
       : this.allData.filter(d => d.archetype === this.filterArchetype);
 
       // plot *all* characters by those two axes
+      
       chart.selectAll('circle')
         .data(displayData)
         .enter().append('circle')
@@ -175,19 +204,16 @@ const yAxisG = chart.append('g')
         .on('mouseover', function(event,d) {
           const m = new Map(d.characteristics);
           tooltip.classList.add('visible');
-          tooltip.innerHTML = `
-            <div style="font-weight:bold;font-size:20px;margin-bottom:6px;">
-              ${d.character}
-            </div>
-            <div style="font-size:14px;margin-bottom:4px;">
-              ${highest}: ${(m.get(highest)*100||0).toFixed(0)}%
-            </div>
-            <div style="font-size:14px;margin-bottom:4px;">
-              ${lowest}: ${(m.get(lowest)*100||0).toFixed(0)}%
-            </div>
-            <div style="font-size:14px;">${d.bio}</div>
-            <div style="font-style:italic;font-size:14px;">${d.title}</div>
-          `;
+
+          d3.select(event.currentTarget)
+            .raise()
+            .transition().duration(100)
+            .attr('r', 12);
+
+          this.showCharacterTooltip(d);
+          
+
+          
           chart.selectAll('circle').style('opacity',0.1);
           d3.select(this)
             .style('stroke','white')
@@ -198,14 +224,21 @@ const yAxisG = chart.append('g')
             .style('opacity',1);
         })
         .on('mousemove', e => {
-          tooltip.style.left = `${e.pageX+12}px`;
-          tooltip.style.top  = `${e.pageY-30}px`;
+          d3.select('#tooltip')
+            .style('left', event.pageX + 'px')
+            .style('top',  event.pageY + 'px');
         })
         .on('mouseout', () => {
           tooltip.classList.remove('visible');
           chart.selectAll('circle')
             .style('opacity',0.8)
             .style('stroke','none');
+
+            d3.select(event.currentTarget)
+              .transition().duration(100)
+              .attr('r', 8);
+
+            this.clearCharacterTooltip();
         });
     }
   },
@@ -266,8 +299,11 @@ const yAxisG = chart.append('g')
   text-align: left;
   font-size: 24px;
   padding-left: 1rem;
+ 
 
-
+}
+.legend-item:hover{
+  transform: scale(1.2);
 }
 button{
   width: 150px;
